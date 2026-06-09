@@ -3,85 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Feed – TextileConnect</title>
-  <meta name="description" content="Your personalized textile industry news feed on TextileConnect.">
+  <title>Feed – Texnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
+
   <div id="navbar"></div>
 
-  <div class="page-layout" id="pageLayout">
-    <!-- Left Sidebar -->
-    <div id="leftSidebar"></div>
+  <div class="page-layout" style="padding-top:calc(var(--nav-height) + 20px);">
+    <div id="leftSidebar" class="sidebar-left"></div>
 
-    <!-- Feed -->
-    <main>
-      <!-- Post Composer -->
-      <div class="post-composer">
+    <main style="min-width:0;">
+      <!-- Composer -->
+      <div class="post-composer reveal">
         <div class="composer-top">
-          <div id="composerAvatar"></div>
-          <button class="composer-input-btn" onclick="openPostModal()" id="composerBtn">
-            Share your textile insights, news or expertise…
-          </button>
+          <div id="composerAvatar" style="flex-shrink:0;"></div>
+          <button class="composer-input-btn" onclick="openPostModal()">Share your textile expertise…</button>
         </div>
         <div class="composer-actions">
-          <button class="composer-action-btn" onclick="openPostModal()">📸 Photo</button>
-          <button class="composer-action-btn" onclick="openPostModal()">📄 Article</button>
-          <button class="composer-action-btn" onclick="openPostModal()">📊 Insight</button>
-          <button class="composer-action-btn" onclick="openPostModal()">🎯 Poll</button>
+          <button class="composer-action-btn" onclick="openPostModal()">
+            <span class="ca-icon"><i data-lucide="image" style="width:18px;height:18px;stroke-width:1.5"></i></span>
+            Photo
+          </button>
+          <button class="composer-action-btn" onclick="openPostModal()">
+            <span class="ca-icon"><i data-lucide="file-text" style="width:18px;height:18px;stroke-width:1.5"></i></span>
+            Article
+          </button>
+          <button class="composer-action-btn" onclick="openPostModal()">
+            <span class="ca-icon"><i data-lucide="bar-chart-2" style="width:18px;height:18px;stroke-width:1.5"></i></span>
+            Poll
+          </button>
+          <button class="composer-action-btn" onclick="openPostModal()">
+            <span class="ca-icon"><i data-lucide="target" style="width:18px;height:18px;stroke-width:1.5"></i></span>
+            Opportunity
+          </button>
         </div>
       </div>
 
-      <!-- Filter Bar -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;margin-bottom:4px;">
+      <!-- Feed tabs -->
+      <div class="feed-tabs reveal" style="margin-top:14px;">
         <button class="tab-btn active" onclick="filterFeed(this,'all')">All Posts</button>
-        <button class="tab-btn" onclick="filterFeed(this,'Technology')">🔬 Tech</button>
-        <button class="tab-btn" onclick="filterFeed(this,'Design')">🎨 Design</button>
-        <button class="tab-btn" onclick="filterFeed(this,'Market Insights')">📊 Markets</button>
-        <button class="tab-btn" onclick="filterFeed(this,'Sustainability')">🌿 Sustainability</button>
-        <button class="tab-btn" onclick="filterFeed(this,'Business')">💼 Business</button>
+        <button class="tab-btn" onclick="filterFeed(this,'yarn_fibre')">Yarn &amp; Fibre</button>
+        <button class="tab-btn" onclick="filterFeed(this,'weaving')">Weaving</button>
+        <button class="tab-btn" onclick="filterFeed(this,'dyeing')">Dyeing</button>
+        <button class="tab-btn" onclick="filterFeed(this,'technical')">Technical</button>
+        <button class="tab-btn" onclick="filterFeed(this,'sustainability')">Sustainability</button>
+        <button class="tab-btn" onclick="filterFeed(this,'export_trade')">Export &amp; Trade</button>
       </div>
 
-      <!-- Feed -->
-      <div class="feed page-content" id="feedContainer" style="margin-top:16px;"></div>
+      <!-- Feed container -->
+      <div class="feed" id="feedContainer" style="margin-top:14px;"></div>
     </main>
 
-    <!-- Right Sidebar -->
-    <div id="rightSidebar"></div>
+    <div id="rightSidebar" class="sidebar-right"></div>
   </div>
 
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
     let currentFilter = 'all';
-    let allPosts = [];
 
     function renderFeed() {
-      allPosts = Posts.getAll();
+      const allPosts = Posts.getAll();
       const filtered = currentFilter === 'all'
         ? allPosts
         : allPosts.filter(p => p.category === currentFilter);
-
       const container = document.getElementById('feedContainer');
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No posts in this category yet. Be the first to share!</div></div>`;
+
+      if (!filtered.length) {
+        container.innerHTML = '<div class="empty-state">' +
+          '<div class="empty-state-icon" style="font-size:3rem;opacity:0.4;">' + icon('search', 48) + '</div>' +
+          '<div class="empty-state-text">No posts in this category yet</div>' +
+          '<button class="btn btn-primary" style="animation:none;" onclick="openPostModal()">Create Post</button>' +
+          '</div>';
+        if (typeof lucide !== "undefined") lucide.createIcons();
         return;
       }
+
       container.innerHTML = filtered.map(p => renderPost(p)).join('');
+      if (typeof lucide !== "undefined") lucide.createIcons();
     }
 
-    function filterFeed(btn, category) {
+    function filterFeed(btn, cat) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      currentFilter = category;
+      currentFilter = cat;
       renderFeed();
     }
 
-    // Init
     Auth.requireAuth();
     initPage('feed');
 
@@ -91,6 +108,7 @@
     document.getElementById('composerAvatar').innerHTML = avatarHTML(user, 'md');
 
     renderFeed();
+    if (typeof lucide !== "undefined") lucide.createIcons();
   </script>
 </body>
 </html>

@@ -1,300 +1,261 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jobs – TextileConnect</title>
-  <meta name="description" content="Find textile industry jobs — from mill supervisors to fabric designers. Browse 24,000+ openings on TextileConnect.">
+  <title>Jobs – Texnect</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .jobs-grid { grid-template-columns: 1fr; }
+    }
+
+    .job-card .job-badge-new {
+      position: absolute; top: 14px; right: 14px;
+      padding: 3px 10px;
+      border-radius: var(--r-pill);
+      font-size: 11px; font-weight: 700;
+      background: rgba(55,138,221,0.15);
+      border: 1px solid rgba(55,138,221,0.3);
+      color: var(--b200);
+      letter-spacing: 0.3px;
+    }
+
+    .job-type-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--r-pill);
+      font-size: 11px; font-weight: 600;
+      background: var(--bg-section);
+      border: 1px solid var(--border-dim);
+      color: var(--b200);
+    }
+
+    .job-desc {
+      font-size: 13px; color: var(--text-secondary);
+      line-height: 1.55; margin-top: 10px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .job-tags {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      margin-top: 10px;
+    }
+    .job-tag-pill {
+      padding: 2px 8px;
+      border-radius: var(--r-pill);
+      font-size: 11px; font-weight: 500;
+      background: rgba(55,138,221,0.06);
+      border: 1px solid var(--border-dim);
+      color: var(--text-hint);
+    }
+
+    .jobs-header-row {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .jobs-count {
+      font-size: 13px; color: var(--text-hint);
+    }
+  </style>
 </head>
 <body>
+  <!-- Navbar -->
   <div id="navbar"></div>
 
-  <div style="max-width:1100px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content">
+  <!-- Page Layout -->
+  <div class="page-layout">
+    <!-- Left Sidebar -->
+    <div id="leftSidebar"></div>
 
-    <!-- Jobs Header -->
-    <div style="background:linear-gradient(135deg,var(--bg-card),var(--bg-card-hover));border:1px solid var(--border-subtle);border-radius:var(--r-xl);padding:40px;margin-bottom:28px;position:relative;overflow:hidden;">
-      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(245,158,11,0.08),transparent);pointer-events:none;"></div>
-      <div style="position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
-        <div>
-          <h1 style="font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;margin-bottom:8px;">💼 Textile Jobs Board</h1>
-          <p style="color:var(--txt-secondary);">24,000+ openings at leading textile companies worldwide</p>
+    <!-- Center Content -->
+    <main>
+      <div class="section-header reveal">
+        <h2 class="section-title" style="display:flex;align-items:center;gap:10px;">
+          <i data-lucide="briefcase" style="width:22px;height:22px;stroke-width:1.5;color:var(--b400)"></i>
+          Textile Jobs & Opportunities
+        </h2>
+        <span class="jobs-count" id="jobsCount"></span>
+      </div>
+
+      <!-- Filter Row -->
+      <div class="filter-row reveal" id="filterRow">
+        <button class="tag active" data-filter="all" onclick="filterJobs('all', this)">
+          <i data-lucide="layers" style="width:14px;height:14px;stroke-width:1.5"></i> All
+        </button>
+        <button class="tag" data-filter="Full-time" onclick="filterJobs('Full-time', this)">
+          <i data-lucide="clock" style="width:14px;height:14px;stroke-width:1.5"></i> Full-time
+        </button>
+        <button class="tag" data-filter="Remote" onclick="filterJobs('Remote', this)">
+          <i data-lucide="wifi" style="width:14px;height:14px;stroke-width:1.5"></i> Remote
+        </button>
+        <button class="tag" data-filter="Internship" onclick="filterJobs('Internship', this)">
+          <i data-lucide="graduation-cap" style="width:14px;height:14px;stroke-width:1.5"></i> Internship
+        </button>
+      </div>
+
+      <!-- Jobs Grid -->
+      <div class="jobs-grid" id="jobsGrid"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-state-icon">
+          <i data-lucide="search-x" style="width:48px;height:48px;stroke-width:1;color:var(--text-hint)"></i>
         </div>
-        <button class="btn btn-accent btn-lg" onclick="openPostJobModal()">+ Post a Job</button>
+        <div class="empty-state-text">No jobs found for this filter. Try another category.</div>
       </div>
+    </main>
 
-      <!-- Search + Filters -->
-      <div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:12px;margin-top:24px;flex-wrap:wrap;" id="jobFilterGrid">
-        <input type="text" class="input" id="jobSearch" placeholder="🔍 Job title, company, or keyword…" oninput="renderJobs()">
-        <select class="select" id="jobFabric" onchange="renderJobs()" style="min-width:140px;">
-          <option value="">All Fabrics</option>
-          <option>Cotton</option><option>Silk</option><option>Wool</option>
-          <option>Denim</option><option>Polyester</option><option>Rayon</option>
-          <option>Linen</option>
-        </select>
-        <select class="select" id="jobType" onchange="renderJobs()" style="min-width:130px;">
-          <option value="">All Types</option>
-          <option>Full-time</option>
-          <option>Part-time</option>
-          <option>Contract</option>
-          <option>Remote</option>
-        </select>
-        <select class="select" id="jobSort" onchange="renderJobs()" style="min-width:130px;">
-          <option value="recent">Most Recent</option>
-          <option value="popular">Most Applied</option>
-        </select>
-        <button class="btn btn-ghost" onclick="clearJobFilters()">✕ Clear</button>
-      </div>
-    </div>
-
-    <!-- Stats bar -->
-    <div style="display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
-      <div class="card" style="flex:1;min-width:120px;text-align:center;padding:16px;">
-        <div style="font-size:1.4rem;font-weight:800;color:var(--clr-primary-light);">24K+</div>
-        <div style="font-size:0.78rem;color:var(--txt-muted);">Live Jobs</div>
-      </div>
-      <div class="card" style="flex:1;min-width:120px;text-align:center;padding:16px;">
-        <div style="font-size:1.4rem;font-weight:800;color:var(--clr-accent);">8,400+</div>
-        <div style="font-size:0.78rem;color:var(--txt-muted);">Companies</div>
-      </div>
-      <div class="card" style="flex:1;min-width:120px;text-align:center;padding:16px;">
-        <div style="font-size:1.4rem;font-weight:800;color:var(--clr-success);">50+</div>
-        <div style="font-size:0.78rem;color:var(--txt-muted);">Countries</div>
-      </div>
-      <div class="card" style="flex:1;min-width:120px;text-align:center;padding:16px;">
-        <div style="font-size:1.4rem;font-weight:800;" style="color:#fff;">New</div>
-        <div style="font-size:1.4rem;font-weight:800;color:var(--txt-primary);">Today</div>
-        <div style="font-size:0.78rem;color:var(--txt-muted);">340 jobs added</div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;" id="jobsLayout">
-      <!-- Job List -->
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="font-size:0.9rem;color:var(--txt-muted);" id="jobCount"></div>
-          <div style="display:flex;gap:8px;">
-            <button class="tab-btn active" onclick="setView('list',this)">☰ List</button>
-            <button class="tab-btn" onclick="setView('grid',this)">⊞ Grid</button>
-          </div>
-        </div>
-        <div id="jobsList" class="stagger-children"></div>
-      </div>
-
-      <!-- Right Panel: Job Detail -->
-      <div>
-        <div id="jobDetail" class="card" style="position:sticky;top:calc(var(--nav-height)+24px);"></div>
-      </div>
-    </div>
+    <!-- Right Sidebar -->
+    <div id="rightSidebar"></div>
   </div>
 
-  <!-- Post Job Modal -->
-  <div id="postJobModal" style="display:none;" class="modal-overlay">
-    <div class="modal" style="max-width:520px;">
-      <div class="modal-header">
-        <h3 class="modal-title">📋 Post a Job Opening</h3>
-        <button class="modal-close" onclick="document.getElementById('postJobModal').style.display='none'">✕</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        <div class="input-group"><label class="input-label">Job Title *</label><input type="text" class="input" id="newJobTitle" placeholder="e.g. Senior Textile Designer"></div>
-        <div class="input-group"><label class="input-label">Company Name *</label><input type="text" class="input" id="newJobCompany" placeholder="Your company name"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="input-group"><label class="input-label">Location</label><input type="text" class="input" id="newJobLocation" placeholder="City, Country"></div>
-          <div class="input-group"><label class="input-label">Salary</label><input type="text" class="input" id="newJobSalary" placeholder="e.g. ₹8–12 LPA"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="input-group">
-            <label class="input-label">Fabric Type</label>
-            <select class="select" id="newJobFabric">
-              <option>Cotton</option><option>Silk</option><option>Wool</option><option>Denim</option><option>Polyester</option><option>All Textiles</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Job Type</label>
-            <select class="select" id="newJobType">
-              <option>Full-time</option><option>Part-time</option><option>Contract</option><option>Remote</option>
-            </select>
-          </div>
-        </div>
-        <div class="input-group"><label class="input-label">Job Description</label><textarea class="textarea" id="newJobDesc" placeholder="Describe the role, responsibilities…" style="min-height:100px;"></textarea></div>
-        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
-          <button class="btn btn-ghost" onclick="document.getElementById('postJobModal').style.display='none'">Cancel</button>
-          <button class="btn btn-primary" onclick="postNewJob()">📤 Post Job</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- Toast -->
   <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    let viewMode = 'list';
-    let selectedJob = null;
-    let customJobs = Storage.get('customJobs') || [];
-    let allJobs = [...TC_DATA.jobs, ...customJobs];
+    lucide.createIcons();
 
-    initPage('jobs');
+    // Auth guard
+    if (!Auth.requireAuth()) { /* redirects */ }
 
-    function setView(mode, btn) {
-      viewMode = mode;
-      document.querySelectorAll('#jobsLayout .tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderJobs();
+    // Render sidebars
+    document.getElementById('leftSidebar').innerHTML = renderLeftSidebar('jobs');
+    document.getElementById('rightSidebar').innerHTML = renderRightSidebar();
+
+    // ── Render job cards ──
+    let currentFilter = 'all';
+
+    function getCompanyInitials(name) {
+      return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     }
 
-    function clearJobFilters() {
-      document.getElementById('jobSearch').value = '';
-      document.getElementById('jobFabric').value = '';
-      document.getElementById('jobType').value = '';
-      document.getElementById('jobSort').value = 'recent';
-      renderJobs();
-    }
-
-    function openPostJobModal() {
-      document.getElementById('postJobModal').style.display = 'flex';
-    }
-
-    function postNewJob() {
-      const title = document.getElementById('newJobTitle').value.trim();
-      const company = document.getElementById('newJobCompany').value.trim();
-      if (!title || !company) { showToast('Please fill in required fields', 'error'); return; }
-      const newJob = {
-        id: 'j_' + Date.now(),
-        title, company,
-        companyId: null,
-        location: document.getElementById('newJobLocation').value || 'Remote',
-        type: document.getElementById('newJobType').value,
-        fabricType: document.getElementById('newJobFabric').value,
-        salary: document.getElementById('newJobSalary').value || 'Negotiable',
-        posted: 'just now',
-        applicants: 0,
-        description: document.getElementById('newJobDesc').value,
-        requirements: [],
-        isNew: true
-      };
-      customJobs.unshift(newJob);
-      Storage.set('customJobs', customJobs);
-      allJobs = [...customJobs, ...TC_DATA.jobs];
-      document.getElementById('postJobModal').style.display = 'none';
-      showToast('Job posted successfully! 🎉', 'success');
-      renderJobs();
-    }
-
-    function renderJobs() {
-      const q = (document.getElementById('jobSearch').value || '').toLowerCase();
-      const fabric = document.getElementById('jobFabric').value;
-      const type = document.getElementById('jobType').value;
-      const sort = document.getElementById('jobSort').value;
-
-      let jobs = allJobs.filter(j => {
-        const matchQ = !q || j.title.toLowerCase().includes(q) || (j.company||'').toLowerCase().includes(q) || (j.location||'').toLowerCase().includes(q);
-        const matchFabric = !fabric || j.fabricType === fabric;
-        const matchType = !type || j.type === type;
-        return matchQ && matchFabric && matchType;
-      });
-
-      if (sort === 'popular') jobs = jobs.sort((a, b) => b.applicants - a.applicants);
-
-      document.getElementById('jobCount').textContent = `${jobs.length} job${jobs.length !== 1 ? 's' : ''} found`;
-
-      const list = document.getElementById('jobsList');
-      if (jobs.length === 0) {
-        list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💼</div><div class="empty-state-text">No jobs match your filters.</div></div>`;
-        return;
+    function getCompanyColor(companyId) {
+      const company = TC_DATA.companies.find(c => c.id === companyId);
+      if (company) {
+        // Map company colors to blue system
+        const colorMap = {
+          'var(--b600)': 'var(--b600)',
+          'var(--b400)': 'var(--b400)',
+          'var(--b400)': 'var(--b400)',
+          'var(--b600)': 'var(--b600)',
+          'var(--b200)': 'var(--b600)',
+          'var(--b800)': 'var(--b400)',
+        };
+        return colorMap[company.color] || 'var(--b600)';
       }
+      return 'var(--b600)';
+    }
 
-      const cardStyle = viewMode === 'grid' ? 'display:grid;grid-template-columns:1fr 1fr;gap:16px;' : 'display:flex;flex-direction:column;gap:16px;';
-      list.style.cssText = '';
+    function renderJobCard(job) {
+      const company = TC_DATA.companies.find(c => c.id === job.companyId);
+      const companyBg = getCompanyColor(job.companyId);
+      const initials = getCompanyInitials(job.company);
 
-      list.innerHTML = jobs.map(j => `
-        <div class="job-card ${selectedJob && selectedJob.id === j.id ? 'animate-glow' : ''}" onclick="selectJob('${j.id}')">
-          ${j.isNew ? '<span class="badge badge-success" style="margin-bottom:10px;font-size:0.72rem;">🆕 New</span>' : ''}
+      return `
+        <div class="job-card reveal" onclick="applyJob('${job.id}')">
+          ${job.isNew ? '<span class="job-badge-new"><i data-lucide="sparkles" style="width:10px;height:10px;stroke-width:2"></i> NEW</span>' : ''}
           <div class="job-card-header">
-            <div class="job-company-logo" style="background:linear-gradient(135deg,${getCompanyColor(j.companyId)+'33'},${getCompanyColor(j.companyId)+'11'});">
-              ${j.company ? j.company[0] : '🏭'}
+            <div class="job-company-logo" style="background:${companyBg};color:var(--b050);font-family:'Sora',sans-serif;font-weight:700;font-size:14px;">
+              ${initials}
             </div>
             <div>
-              <div class="job-title">${j.title}</div>
-              <div class="job-company">${j.company}</div>
+              <div class="job-title">${job.title}</div>
+              <div class="job-company">${job.company}</div>
             </div>
           </div>
+
           <div class="job-meta">
-            <span class="job-meta-item">📍 ${j.location}</span>
-            <span class="job-meta-item">🕐 ${j.type}</span>
-            <span class="job-meta-item">🧵 ${j.fabricType}</span>
-            <span class="job-meta-item">💰 ${j.salary}</span>
+            <span class="job-meta-item">
+              <i data-lucide="map-pin" style="width:14px;height:14px;stroke-width:1.5;color:var(--b400)"></i>
+              ${job.location}
+            </span>
+            <span class="job-meta-item">
+              <i data-lucide="banknote" style="width:14px;height:14px;stroke-width:1.5;color:var(--b400)"></i>
+              ${job.salary}
+            </span>
+            <span class="job-type-badge">
+              <i data-lucide="clock" style="width:11px;height:11px;stroke-width:1.5"></i>
+              ${job.type}
+            </span>
           </div>
+
+          <div class="job-desc">${job.description}</div>
+
+          <div class="job-tags">
+            ${(job.requirements || []).slice(0, 3).map(r => `<span class="job-tag-pill">${r}</span>`).join('')}
+          </div>
+
           <div class="job-footer">
-            <span class="job-applicants">👥 ${j.applicants} applicants · ${j.posted}</span>
-            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();applyJob('${j.id}', this)">Apply Now</button>
+            <span class="job-applicants">
+              <i data-lucide="users" style="width:13px;height:13px;stroke-width:1.5;color:var(--text-hint)"></i>
+              ${job.applicants} applicants
+            </span>
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();applyJob('${job.id}')" style="animation:none;">
+              <i data-lucide="send" style="width:14px;height:14px;stroke-width:1.5"></i>
+              Apply
+            </button>
           </div>
         </div>
-      `).join('');
-
-      if (viewMode === 'grid') list.style.display = 'grid';
-      else list.style.display = 'flex';
-      if (viewMode === 'grid') list.style.gridTemplateColumns = '1fr 1fr';
-      list.style.gap = '16px';
-
-      // Auto-select first job
-      if (jobs.length > 0 && !selectedJob) selectJob(jobs[0].id);
-    }
-
-    function getCompanyColor(id) {
-      const c = TC_DATA.companies.find(c => c.id === id);
-      return c ? c.color : '#4F46E5';
-    }
-
-    function selectJob(jobId) {
-      selectedJob = allJobs.find(j => j.id === jobId);
-      if (!selectedJob) return;
-
-      const detail = document.getElementById('jobDetail');
-      detail.innerHTML = `
-        <div style="border-bottom:1px solid var(--border-subtle);padding-bottom:20px;margin-bottom:20px;">
-          <div style="font-size:1.15rem;font-weight:800;">${selectedJob.title}</div>
-          <div style="color:var(--clr-primary-light);font-weight:500;margin-top:4px;">${selectedJob.company}</div>
-          <div style="font-size:0.82rem;color:var(--txt-muted);margin-top:6px;">📍 ${selectedJob.location} · ${selectedJob.posted}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-            <span class="badge badge-primary">${selectedJob.type}</span>
-            <span class="badge badge-accent">${selectedJob.fabricType}</span>
-            <span class="badge badge-success">💰 ${selectedJob.salary}</span>
-          </div>
-        </div>
-        <div style="font-size:0.875rem;color:var(--txt-secondary);line-height:1.7;margin-bottom:16px;">${selectedJob.description || 'No description provided.'}</div>
-        ${selectedJob.requirements && selectedJob.requirements.length > 0 ? `
-          <div style="margin-bottom:16px;">
-            <div style="font-weight:700;font-size:0.9rem;margin-bottom:8px;">Requirements:</div>
-            <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;">
-              ${selectedJob.requirements.map(r => `<li style="font-size:0.85rem;color:var(--txt-secondary);display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--clr-success);">✓</span>${r}</li>`).join('')}
-            </ul>
-          </div>
-        ` : ''}
-        <div style="font-size:0.8rem;color:var(--txt-muted);margin-bottom:16px;">👥 ${selectedJob.applicants} people applied</div>
-        <button class="btn btn-primary w-full" style="padding:13px;" id="applyBtn_${selectedJob.id}" onclick="applyJob('${selectedJob.id}', this)">
-          🚀 Apply Now
-        </button>
-        <button class="btn btn-ghost w-full" style="margin-top:8px;" onclick="showToast('Job saved!','success')">🔖 Save Job</button>
       `;
     }
 
-    function applyJob(jobId, btn) {
-      btn.textContent = '✓ Applied!';
-      btn.disabled = true;
-      btn.style.background = 'var(--clr-success)';
-      const detailBtn = document.getElementById('applyBtn_' + jobId);
-      if (detailBtn && detailBtn !== btn) {
-        detailBtn.textContent = '✓ Applied!';
-        detailBtn.disabled = true;
-        detailBtn.style.background = 'var(--clr-success)';
+    function renderJobs(filter) {
+      const grid = document.getElementById('jobsGrid');
+      const emptyState = document.getElementById('emptyState');
+      const countEl = document.getElementById('jobsCount');
+
+      let jobs = TC_DATA.jobs;
+      if (filter && filter !== 'all') {
+        jobs = jobs.filter(j => j.type === filter);
       }
-      showToast('Application submitted! 🎉', 'success');
+
+      countEl.textContent = jobs.length + ' opportunit' + (jobs.length === 1 ? 'y' : 'ies');
+
+      if (jobs.length === 0) {
+        grid.innerHTML = '';
+        emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+        grid.innerHTML = jobs.map(renderJobCard).join('');
+      }
+
+      // Re-init lucide + motion
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      initMotion();
     }
 
-    renderJobs();
+    function filterJobs(filter, btn) {
+      currentFilter = filter;
+      // Update active tag
+      document.querySelectorAll('#filterRow .tag').forEach(t => t.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderJobs(filter);
+    }
+
+    function applyJob(jobId) {
+      const job = TC_DATA.jobs.find(j => j.id === jobId);
+      if (job) {
+        showToast('Application submitted for ' + job.title + '!', 'success');
+      }
+    }
+
+    // Initial render
+    renderJobs('all');
+    initPage('jobs');
   </script>
 </body>
 </html>

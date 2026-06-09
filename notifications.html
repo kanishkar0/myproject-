@@ -3,153 +3,308 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notifications – TextileConnect</title>
-  <meta name="description" content="Stay updated with your latest connections, likes, and activity on TextileConnect.">
+  <title>Notifications – Texnect</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .notif-page-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      gap: 20px;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: 20px 24px;
+      padding-top: calc(var(--nav-height) + 20px);
+    }
+    @media (max-width: 768px) {
+      .notif-page-layout {
+        grid-template-columns: 1fr;
+        padding: var(--sp-4);
+      }
+      .notif-page-layout .sidebar-left { display: none; }
+    }
+
+    .notif-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-card);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .notif-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-dim);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .notif-header-left {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .notif-mark-read {
+      font-size: 13px; color: var(--b400);
+      cursor: pointer; background: none; border: none;
+      font-family: 'Inter', sans-serif; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
+      transition: color 0.2s;
+    }
+    .notif-mark-read:hover { color: var(--b200); }
+
+    .notif-tabs {
+      display: flex; gap: 4px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-dim);
+      background: rgba(5,13,26,0.4);
+    }
+
+    .notif-list { display: flex; flex-direction: column; }
+
+    /* Icon wrap colors by type */
+    .notif-icon-wrap.like    { background: rgba(55,138,221,0.12); color: var(--b400); }
+    .notif-icon-wrap.comment { background: rgba(133,183,235,0.12); color: var(--b200); }
+    .notif-icon-wrap.connect { background: rgba(24,95,165,0.15); color: var(--b400); }
+    .notif-icon-wrap.job     { background: rgba(12,68,124,0.2); color: var(--b200); }
+    .notif-icon-wrap.follow  { background: rgba(55,138,221,0.1); color: var(--b400); }
+    .notif-icon-wrap.milestone { background: rgba(181,212,244,0.1); color: var(--b100); }
+
+    .notif-item.unread .notif-msg { font-weight: 600; }
+    .notif-item.unread::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--b400);
+      border-radius: 0 2px 2px 0;
+    }
+    .notif-item { position: relative; }
+
+    .notif-actions {
+      display: flex; gap: 6px;
+      margin-top: 8px;
+    }
+
+    .notif-count-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px;
+      padding: 0 6px;
+      border-radius: var(--r-pill);
+      font-size: 11px; font-weight: 700;
+      background: var(--b400); color: var(--b050);
+      margin-left: 6px;
+    }
+
+    .empty-notif {
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .empty-notif-icon {
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    .empty-notif-text {
+      font-size: 15px; color: var(--text-hint);
+      margin-bottom: 8px;
+    }
+    .empty-notif-sub {
+      font-size: 13px; color: var(--text-hint);
+      opacity: 0.6;
+    }
+  </style>
 </head>
 <body>
+  <!-- Navbar -->
   <div id="navbar"></div>
 
-  <div style="max-width:760px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content">
+  <!-- Page Layout (2-column) -->
+  <div class="notif-page-layout">
+    <!-- Left Sidebar -->
+    <div id="leftSidebar"></div>
 
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
-      <h1 style="font-size:1.8rem;font-weight:800;">🔔 Notifications</h1>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-ghost btn-sm" onclick="markAllRead()">✓ Mark all read</button>
-        <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Clear all</button>
+    <!-- Center Content -->
+    <main>
+      <div class="notif-container reveal">
+        <!-- Header -->
+        <div class="notif-header">
+          <div class="notif-header-left">
+            <h2 class="section-title" style="display:flex;align-items:center;gap:10px;margin:0;">
+              <i data-lucide="bell" style="width:22px;height:22px;stroke-width:1.5;color:var(--b400)"></i>
+              Notifications
+            </h2>
+            <span class="notif-count-badge" id="unreadCount">0</span>
+          </div>
+          <button class="notif-mark-read" onclick="markAllRead()">
+            <i data-lucide="check-check" style="width:15px;height:15px;stroke-width:1.5"></i>
+            Mark all read
+          </button>
+        </div>
+
+        <!-- Tab Row -->
+        <div class="notif-tabs" id="notifTabs">
+          <button class="tab-btn active" data-tab="all" onclick="filterNotifs('all', this)">
+            <i data-lucide="inbox" style="width:14px;height:14px;stroke-width:1.5"></i> All
+          </button>
+          <button class="tab-btn" data-tab="mentions" onclick="filterNotifs('mentions', this)">
+            <i data-lucide="at-sign" style="width:14px;height:14px;stroke-width:1.5"></i> Mentions
+          </button>
+          <button class="tab-btn" data-tab="jobs" onclick="filterNotifs('jobs', this)">
+            <i data-lucide="briefcase" style="width:14px;height:14px;stroke-width:1.5"></i> Jobs
+          </button>
+        </div>
+
+        <!-- Notification List -->
+        <div class="notif-list" id="notifList"></div>
       </div>
-    </div>
-
-    <!-- Filter tabs -->
-    <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border-subtle);padding-bottom:0;">
-      <button class="tab-btn active" onclick="filterNotifs('all', this)" style="border-radius:0;border-bottom:2px solid var(--clr-primary);">All</button>
-      <button class="tab-btn" onclick="filterNotifs('unread', this)" style="border-radius:0;">Unread <span id="unreadBadge" class="badge badge-primary" style="margin-left:6px;font-size:0.7rem;"></span></button>
-      <button class="tab-btn" onclick="filterNotifs('connect', this)" style="border-radius:0;">Connections</button>
-      <button class="tab-btn" onclick="filterNotifs('like', this)" style="border-radius:0;">Likes</button>
-      <button class="tab-btn" onclick="filterNotifs('job', this)" style="border-radius:0;">Jobs</button>
-    </div>
-
-    <div id="notifContainer" class="card" style="padding:0;overflow:hidden;"></div>
+    </main>
   </div>
 
+  <!-- Toast -->
   <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    Auth.requireAuth();
-    initPage('notifications');
+    lucide.createIcons();
 
-    let currentFilter = 'all';
-    let notifications = JSON.parse(JSON.stringify(TC_DATA.notifications));
+    // Auth guard
+    if (!Auth.requireAuth()) { /* redirects */ }
 
-    const notifIcons = {
-      like: { icon: '❤️', bg: 'rgba(239,68,68,0.15)', color: 'var(--clr-danger)' },
-      comment: { icon: '💬', bg: 'rgba(79,70,229,0.15)', color: 'var(--clr-primary-light)' },
-      connect: { icon: '🤝', bg: 'rgba(16,185,129,0.15)', color: 'var(--clr-success)' },
-      follow: { icon: '👤', bg: 'rgba(245,158,11,0.15)', color: 'var(--clr-accent)' },
-      job: { icon: '💼', bg: 'rgba(79,70,229,0.15)', color: 'var(--clr-primary-light)' },
-      milestone: { icon: '🏆', bg: 'rgba(245,158,11,0.15)', color: 'var(--clr-accent)' }
+    // Render sidebar
+    document.getElementById('leftSidebar').innerHTML = renderLeftSidebar('notifications');
+
+    // ── Icon map for notification types ──
+    const notifIconMap = {
+      like:      { icon: 'heart',       cls: 'like' },
+      comment:   { icon: 'message-circle', cls: 'comment' },
+      connect:   { icon: 'user-plus',   cls: 'connect' },
+      job:       { icon: 'briefcase',   cls: 'job' },
+      follow:    { icon: 'user-check',  cls: 'follow' },
+      milestone: { icon: 'award',       cls: 'milestone' }
     };
 
-    function updateUnreadBadge() {
-      const count = notifications.filter(n => !n.read).length;
-      const badge = document.getElementById('unreadBadge');
-      badge.textContent = count > 0 ? count : '';
-    }
+    let currentTab = 'all';
 
-    function renderNotifications() {
-      let filtered = notifications;
-      if (currentFilter === 'unread') filtered = notifications.filter(n => !n.read);
-      else if (currentFilter !== 'all') filtered = notifications.filter(n => n.type === currentFilter);
+    function renderNotifItem(notif) {
+      const iconInfo = notifIconMap[notif.type] || { icon: 'bell', cls: 'like' };
+      const unreadClass = notif.read ? '' : 'unread';
 
-      const container = document.getElementById('notifContainer');
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-text">No notifications here yet</div></div>`;
-        return;
-      }
-
-      container.innerHTML = filtered.map(n => {
-        const style = notifIcons[n.type] || notifIcons.like;
-        const user = n.userId ? getUserById(n.userId) : null;
-        return `
-          <div class="notif-item ${n.read ? '' : 'unread'} animate-fadeInUp" onclick="readNotif('${n.id}', this)">
-            ${!n.read ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--clr-primary);flex-shrink:0;margin-top:8px;box-shadow:0 0 6px var(--clr-primary);"></div>' : '<div style="width:8px;"></div>'}
-            <div class="notif-icon-wrap" style="background:${style.bg};">
-              ${style.icon}
-            </div>
-            <div style="flex:1;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
-              <div class="notif-info">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                  ${user ? avatarHTML(user, 'sm') : ''}
-                  <div class="notif-msg">${n.message}</div>
-                </div>
-                <div class="notif-time">${n.time}</div>
-              </div>
-              <div style="flex-shrink:0;">
-                ${n.type === 'connect' ? `
-                  <div style="display:flex;gap:6px;">
-                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();acceptConnect('${n.id}', this)">Accept</button>
-                    <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();ignoreConnect('${n.id}', this)">Ignore</button>
-                  </div>` : n.type === 'job' ? `
-                  <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();window.location.href='jobs.html'">View Job</button>
-                ` : ''}
-              </div>
-            </div>
+      // Connect action buttons
+      let actions = '';
+      if (notif.type === 'connect' && !notif.read) {
+        actions = `
+          <div class="notif-actions">
+            <button class="btn btn-primary btn-sm" style="animation:none;padding:5px 14px;font-size:12px;" onclick="event.stopPropagation();acceptConnect('${notif.id}',this)">
+              <i data-lucide="check" style="width:12px;height:12px;stroke-width:2"></i> Accept
+            </button>
+            <button class="btn btn-ghost btn-sm" style="padding:5px 14px;font-size:12px;" onclick="event.stopPropagation();ignoreConnect('${notif.id}',this)">
+              <i data-lucide="x" style="width:12px;height:12px;stroke-width:2"></i> Ignore
+            </button>
           </div>
         `;
-      }).join('');
+      }
+
+      return `
+        <div class="notif-item ${unreadClass} reveal" data-id="${notif.id}" data-type="${notif.type}" onclick="handleNotifClick('${notif.id}')">
+          <div class="notif-icon-wrap ${iconInfo.cls}">
+            <i data-lucide="${iconInfo.icon}" style="width:18px;height:18px;stroke-width:1.5"></i>
+          </div>
+          <div class="notif-info">
+            <div class="notif-msg">${notif.message}</div>
+            <div class="notif-time">
+              <i data-lucide="clock" style="width:11px;height:11px;stroke-width:1.5;vertical-align:-1px;opacity:0.5"></i>
+              ${notif.time}
+            </div>
+            ${actions}
+          </div>
+        </div>
+      `;
     }
 
-    function readNotif(id, el) {
-      const n = notifications.find(n => n.id === id);
-      if (n) n.read = true;
-      el.classList.remove('unread');
-      updateUnreadBadge();
+    function renderEmptyState() {
+      return `
+        <div class="empty-notif">
+          <div class="empty-notif-icon">
+            <i data-lucide="bell-off" style="width:56px;height:56px;stroke-width:1;color:var(--text-hint)"></i>
+          </div>
+          <div class="empty-notif-text">No notifications yet</div>
+          <div class="empty-notif-sub">When you receive likes, comments, or job matches, they'll appear here.</div>
+        </div>
+      `;
+    }
+
+    function renderNotifications(tab) {
+      const list = document.getElementById('notifList');
+      let notifs = [...TC_DATA.notifications];
+
+      if (tab === 'mentions') {
+        notifs = notifs.filter(n => n.type === 'comment' || n.type === 'like');
+      } else if (tab === 'jobs') {
+        notifs = notifs.filter(n => n.type === 'job');
+      }
+
+      if (notifs.length === 0) {
+        list.innerHTML = renderEmptyState();
+      } else {
+        list.innerHTML = notifs.map(renderNotifItem).join('');
+      }
+
+      // Update unread count
+      const unreadCount = TC_DATA.notifications.filter(n => !n.read).length;
+      document.getElementById('unreadCount').textContent = unreadCount;
+      document.getElementById('unreadCount').style.display = unreadCount > 0 ? 'inline-flex' : 'none';
+
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      initMotion();
+    }
+
+    function filterNotifs(tab, btn) {
+      currentTab = tab;
+      document.querySelectorAll('#notifTabs .tab-btn').forEach(t => t.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderNotifications(tab);
+    }
+
+    function handleNotifClick(notifId) {
+      const notif = TC_DATA.notifications.find(n => n.id === notifId);
+      if (notif) {
+        notif.read = true;
+        // Remove unread visual
+        const el = document.querySelector(`.notif-item[data-id="${notifId}"]`);
+        if (el) el.classList.remove('unread');
+        // Update count
+        const unreadCount = TC_DATA.notifications.filter(n => !n.read).length;
+        document.getElementById('unreadCount').textContent = unreadCount;
+        document.getElementById('unreadCount').style.display = unreadCount > 0 ? 'inline-flex' : 'none';
+      }
     }
 
     function markAllRead() {
-      notifications.forEach(n => n.read = true);
-      renderNotifications();
-      updateUnreadBadge();
+      TC_DATA.notifications.forEach(n => n.read = true);
+      document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+      document.getElementById('unreadCount').textContent = '0';
+      document.getElementById('unreadCount').style.display = 'none';
       showToast('All notifications marked as read', 'success');
     }
 
-    function clearAll() {
-      if (currentFilter === 'all') notifications = [];
-      else notifications = notifications.filter(n => n.type !== currentFilter && !(currentFilter === 'unread' && !n.read));
-      renderNotifications();
-      updateUnreadBadge();
-      showToast('Notifications cleared', 'info');
+    function acceptConnect(notifId, btn) {
+      const parent = btn.closest('.notif-actions');
+      if (parent) parent.innerHTML = '<span style="font-size:12px;color:var(--b400);font-weight:600;display:flex;align-items:center;gap:4px;"><i data-lucide="check-circle" style="width:14px;height:14px;stroke-width:1.5"></i> Connected</span>';
+      showToast('Connection accepted!', 'success');
+      handleNotifClick(notifId);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function filterNotifs(filter, btn) {
-      currentFilter = filter;
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('active');
-        b.style.borderBottom = 'none';
-      });
-      btn.classList.add('active');
-      btn.style.borderBottom = '2px solid var(--clr-primary)';
-      renderNotifications();
+    function ignoreConnect(notifId, btn) {
+      const parent = btn.closest('.notif-actions');
+      if (parent) parent.innerHTML = '<span style="font-size:12px;color:var(--text-hint);">Request ignored</span>';
+      handleNotifClick(notifId);
     }
 
-    function acceptConnect(id, btn) {
-      btn.closest('[style*="display:flex;gap:6px"]').innerHTML = '<span style="font-size:0.82rem;color:var(--clr-success);font-weight:600;">✓ Connected!</span>';
-      showToast('Connection accepted! 🎉', 'success');
-      readNotif(id, btn.closest('.notif-item'));
-    }
-
-    function ignoreConnect(id, btn) {
-      btn.closest('[style*="display:flex;gap:6px"]').remove();
-      readNotif(id, btn.closest('.notif-item'));
-    }
-
-    // Init
-    renderNotifications();
-    updateUnreadBadge();
+    // Initial render
+    renderNotifications('all');
+    initPage('notifications');
   </script>
 </body>
 </html>

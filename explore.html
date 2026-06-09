@@ -3,219 +3,875 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Explore – TextileConnect</title>
-  <meta name="description" content="Search and discover textile professionals, companies, and expertise on TextileConnect.">
+  <title>Explore – Texnect</title>
+  <meta name="description" content="Search and discover 1.2M+ textile professionals, companies, and trending topics on Texnect.">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
+  <style>
+    /* ═══════════════════════════════════════════
+       EXPLORE PAGE – Premium Styles
+       ═══════════════════════════════════════════ */
+
+    /* ── Hero Banner ── */
+    .explore-hero {
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-raised) 35%, var(--bg-section) 70%, var(--b900) 100%);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 90px 40px 70px;
+      border-radius: 0 0 var(--r-2xl) var(--r-2xl);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .explore-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(55,138,221,0.10), transparent 65%);
+      pointer-events: none;
+    }
+    .explore-hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+      background: linear-gradient(to top, var(--bg-page), transparent);
+      pointer-events: none; z-index: 1;
+    }
+
+    /* Mesh lines overlay */
+    .explore-hero .mesh-lines {
+      position: absolute; inset: 0; opacity: 0.035; pointer-events: none;
+      background-image:
+        repeating-linear-gradient(45deg, transparent, transparent 40px, var(--b400) 40px, var(--b400) 41px),
+        repeating-linear-gradient(-45deg, transparent, transparent 40px, var(--b400) 40px, var(--b400) 41px);
+    }
+
+    /* Hero particles */
+    .hero-particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      background: var(--b400);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      animation: particleDrift 8s ease-in-out infinite;
+    }
+    .hero-particle:nth-child(1) { top: 20%; left: 15%; animation-delay: 0s; }
+    .hero-particle:nth-child(2) { top: 60%; left: 80%; animation-delay: 2s; width: 2px; height: 2px; }
+    .hero-particle:nth-child(3) { top: 35%; left: 65%; animation-delay: 4s; }
+    .hero-particle:nth-child(4) { top: 75%; left: 25%; animation-delay: 6s; width: 4px; height: 4px; }
+    .hero-particle:nth-child(5) { top: 15%; left: 85%; animation-delay: 1s; width: 2px; height: 2px; }
+    .hero-particle:nth-child(6) { top: 50%; left: 40%; animation-delay: 3.5s; }
+
+    @keyframes particleDrift {
+      0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+      20% { opacity: 0.6; }
+      50% { opacity: 0.4; transform: translateY(-30px) scale(1.5); }
+      80% { opacity: 0.6; }
+    }
+
+    /* Hero text stagger */
+    .explore-hero h1 {
+      opacity: 0;
+      animation: fadeUp 0.6s 0.1s var(--ease-spring) forwards;
+    }
+    .explore-hero .hero-subtitle {
+      opacity: 0;
+      animation: fadeUp 0.5s 0.25s var(--ease-spring) forwards;
+    }
+    .explore-hero .explore-search-bar {
+      opacity: 0;
+      animation: fadeUp 0.5s 0.4s var(--ease-spring) forwards;
+    }
+
+    /* ── Hero stats row ── */
+    .hero-stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 28px;
+      opacity: 0;
+      animation: fadeUp 0.5s 0.55s var(--ease-spring) forwards;
+    }
+    .hero-stats-row .hs-item {
+      text-align: center;
+    }
+    .hero-stats-row .hs-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--b200);
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-stats-row .hs-label {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 2px;
+    }
+
+    /* ── Search bar (hero) ── */
+    .explore-search-bar {
+      display: flex;
+      gap: 0;
+      max-width: 640px;
+      margin: 28px auto 0;
+      position: relative;
+    }
+    .explore-search-bar input {
+      flex: 1;
+      background: rgba(7,21,37,0.92);
+      border: 1.5px solid var(--border-mid);
+      border-radius: 16px;
+      height: 60px;
+      padding: 0 70px 0 52px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.35s var(--ease);
+      backdrop-filter: blur(12px);
+    }
+    .explore-search-bar input::placeholder { color: var(--text-hint); transition: color 0.3s; }
+    .explore-search-bar input:focus {
+      border-color: var(--b400);
+      box-shadow: 0 0 0 5px rgba(55,138,221,0.12), 0 8px 40px rgba(55,138,221,0.18);
+      transform: scale(1.01);
+      background: rgba(7,21,37,0.98);
+    }
+    .explore-search-bar input:focus::placeholder { color: var(--text-secondary); }
+    .explore-search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--b400);
+      pointer-events: none;
+      display: flex; align-items: center;
+    }
+    .explore-search-btn {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--b400), var(--b600));
+      border: none;
+      border-radius: var(--r-md);
+      color: var(--b050);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s var(--ease);
+      box-shadow: 0 4px 12px rgba(55,138,221,0.3);
+    }
+    .explore-search-btn:hover {
+      background: linear-gradient(135deg, var(--b600), var(--b800));
+      box-shadow: 0 4px 20px rgba(55,138,221,0.5);
+      transform: scale(1.06);
+    }
+
+    /* ── Content area ── */
+    .explore-content {
+      padding-top: 36px;
+      padding-bottom: 80px;
+    }
+
+    /* ── Filter bar ── */
+    .explore-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      background: var(--bg-section);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      font-family: 'Inter', sans-serif;
+    }
+    .filter-pill:hover {
+      border-color: var(--b400);
+      color: var(--b200);
+      background: rgba(55,138,221,0.08);
+    }
+    .filter-pill.active {
+      background: rgba(55,138,221,0.15);
+      border-color: var(--b400);
+      color: var(--b200);
+      font-weight: 600;
+    }
+
+    /* ── People grid: 4 cols on desktop ── */
+    .people-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 1100px) {
+      .people-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 800px) {
+      .people-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .people-grid { grid-template-columns: 1fr; }
+      .explore-hero { padding: 60px 20px 50px; }
+      .hero-stats-row { gap: 20px; flex-wrap: wrap; }
+    }
+
+    /* ── People card ── */
+    .people-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-card);
+      padding: 28px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      transition: all 0.35s var(--ease);
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+    }
+    .people-card::before {
+      content: '';
+      position: absolute; top: 0; left: 10%; width: 80%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--b400), transparent);
+      opacity: 0;
+      transition: opacity 0.35s var(--ease);
+    }
+    .people-card:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: var(--border-bright);
+      background: var(--bg-raised);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .people-card:hover::before { opacity: 1; }
+    .people-card:hover .avatar-placeholder {
+      transform: scale(1.08);
+      border-color: var(--b400) !important;
+    }
+    .people-card .avatar-placeholder {
+      margin: 0 auto 14px;
+      border: 2px solid var(--border-mid);
+      transition: transform 0.35s var(--ease), border-color 0.35s var(--ease);
+    }
+    .people-card-name {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+    .people-card-role {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+    .people-card-company {
+      font-size: 13px;
+      color: var(--b400);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .people-card-location {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .people-card-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+    .people-card-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .people-card-buttons .btn { flex: 1; }
+
+    /* ── Company grid ── */
+    .company-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .company-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .company-grid { grid-template-columns: 1fr; }
+    }
+
+    .company-explore-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-card);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: all 0.35s var(--ease);
+      position: relative;
+    }
+    .company-explore-card::before {
+      content: '';
+      position: absolute; top: 0; left: 10%; width: 80%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--b400), transparent);
+      opacity: 0; transition: opacity 0.35s; z-index: 2;
+    }
+    .company-explore-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .company-explore-card:hover::before { opacity: 1; }
+    .company-explore-banner {
+      height: 72px;
+      position: relative;
+    }
+    .company-explore-banner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(55,138,221,0.1) 1px, transparent 1px);
+      background-size: 16px 16px;
+      opacity: 0.5;
+    }
+    .company-explore-body {
+      padding: 0 20px 20px;
+    }
+    .company-explore-logo {
+      width: 50px; height: 50px;
+      border-radius: var(--r-md);
+      border: 3px solid var(--bg-card);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--b050);
+      margin-top: -25px;
+      position: relative; z-index: 1;
+    }
+    .company-explore-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 10px;
+    }
+    .company-explore-tagline {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .company-explore-meta {
+      margin-top: 12px;
+      display: flex; flex-direction: column; gap: 4px;
+      font-size: 13px; color: var(--text-secondary);
+    }
+    .company-explore-meta span {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .company-explore-footer {
+      display: flex; gap: 8px;
+      margin-top: 14px;
+    }
+    .company-explore-footer .btn { flex: 1; }
+
+    /* ── Trending section ── */
+    .trending-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .trending-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .trending-grid { grid-template-columns: 1fr; }
+    }
+    .trending-explore-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-card);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.35s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+    .trending-explore-card::before {
+      content: '';
+      position: absolute; top: 0; left: 10%; width: 80%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--b400), transparent);
+      opacity: 0; transition: opacity 0.35s;
+    }
+    .trending-explore-card:hover {
+      border-color: var(--border-bright);
+      background: var(--bg-raised);
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .trending-explore-card:hover::before { opacity: 1; }
+    .trending-explore-tag {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--b400);
+    }
+    .trending-explore-posts {
+      font-size: 12px;
+      color: var(--text-hint);
+      margin-top: 4px;
+    }
+    .trending-explore-bar {
+      height: 4px;
+      background: var(--bg-section);
+      border-radius: var(--r-pill);
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .trending-explore-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--b600), var(--b400));
+      border-radius: var(--r-pill);
+      transition: width 0.8s var(--ease);
+    }
+
+    /* ── Tab panel sections ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Results info bar ── */
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .results-bar p {
+      font-size: 13px;
+      color: var(--text-hint);
+      margin: 0;
+    }
+    .sort-select {
+      background: var(--bg-section);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--r-md);
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 6px 12px;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+    }
+    .sort-select:focus { border-color: var(--b400); }
+    .sort-select option { background: var(--bg-card); color: var(--text-primary); }
+
+    /* ── No results ── */
+    .no-results {
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .no-results-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 72px; height: 72px;
+      margin: 0 auto 16px;
+      background: var(--bg-section);
+      border: 1px solid var(--border-dim);
+      border-radius: 50%;
+      color: var(--text-hint);
+    }
+    .no-results h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .no-results p {
+      font-size: 14px;
+      color: var(--text-hint);
+    }
+
+    /* ── Responsive toolbar ── */
+    @media (max-width: 768px) {
+      .explore-toolbar { flex-direction: column; align-items: stretch; }
+      .filter-row { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
+      .filter-row::-webkit-scrollbar { display: none; }
+    }
+  </style>
 </head>
 <body>
+  <!-- Navbar -->
   <div id="navbar"></div>
 
-  <div style="max-width:1100px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content">
+  <div style="padding-top:var(--nav-height);">
 
-    <!-- Search Hero -->
-    <div class="explore-search-hero">
-      <h1 style="font-size:clamp(1.5rem,4vw,2.4rem);font-weight:800;margin-bottom:8px;">🔍 Explore Textile Professionals</h1>
-      <p style="color:var(--txt-secondary);">Search 1.2M+ professionals by name, role, fabric type, or company</p>
-      <div class="explore-search-bar">
-        <input type="text" id="searchInput" placeholder="Search people, companies, skills…" oninput="performSearch(this.value)">
-        <button class="btn btn-primary" onclick="performSearch(document.getElementById('searchInput').value)">Search</button>
+    <!-- ═══════════ HERO BANNER ═══════════ -->
+    <div class="explore-hero">
+      <div class="mesh-lines"></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-3" style="top:20%;left:70%;"></div>
+
+      <!-- Floating particles -->
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+
+      <div style="position:relative;z-index:2;">
+        <h1 class="font-sora" style="font-size:var(--fs-h1);color:var(--text-primary);letter-spacing:-0.02em;margin:0;">Explore Textile Professionals</h1>
+        <p class="hero-subtitle" style="font-size:17px;color:var(--text-secondary);max-width:520px;margin:12px auto 0;line-height:1.6;">Search 1.2M+ professionals by name, role, fabric type, or company</p>
+
+        <!-- Search bar -->
+        <div class="explore-search-bar">
+          <span class="explore-search-icon"><i data-lucide="search" style="width:22px;height:22px;stroke-width:1.5"></i></span>
+          <input type="text" class="search-input" id="exploreSearch" placeholder="Search by name, role, or specialty..." data-cycle onkeydown="if(event.key==='Enter')searchPeople()">
+          <button class="explore-search-btn" onclick="searchPeople()" aria-label="Search"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke-width:2"></i></button>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="hero-stats-row">
+          <div class="hs-item">
+            <div class="hs-value count-up" data-target="1200000" data-suffix="+">0</div>
+            <div class="hs-label">Professionals</div>
+          </div>
+          <div class="hs-item">
+            <div class="hs-value count-up" data-target="8400" data-suffix="+">0</div>
+            <div class="hs-label">Companies</div>
+          </div>
+          <div class="hs-item">
+            <div class="hs-value count-up" data-target="50" data-suffix="+">0</div>
+            <div class="hs-label">Countries</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--border-subtle);">
-      <button class="tab-btn active" id="tab-people" onclick="switchExploreTab('people', this)" style="border-radius:0;border-bottom:2px solid var(--clr-primary);padding:12px 24px;">👤 People</button>
-      <button class="tab-btn" id="tab-companies" onclick="switchExploreTab('companies', this)" style="border-radius:0;padding:12px 24px;">🏭 Companies</button>
-      <button class="tab-btn" id="tab-trending" onclick="switchExploreTab('trending', this)" style="border-radius:0;padding:12px 24px;">🔥 Trending</button>
-    </div>
+    <!-- ═══════════ CONTENT ═══════════ -->
+    <div class="container explore-content">
 
-    <!-- Filters -->
-    <div id="filterSection">
-      <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
-        <select class="select" id="filterRole" onchange="applyFilters()" style="width:auto;flex:1;min-width:160px;">
-          <option value="">All Roles</option>
-          <option>Textile Manufacturer</option>
-          <option>Fabric Designer</option>
-          <option>Yarn Trader</option>
-          <option>Fabric Buyer</option>
-          <option>Quality Inspector</option>
-          <option>Textile Engineer</option>
-          <option>Mill Owner</option>
-          <option>Export Manager</option>
-          <option>Textile Chemist</option>
-          <option>Research Scientist</option>
-        </select>
-        <select class="select" id="filterFabric" onchange="applyFilters()" style="width:auto;flex:1;min-width:160px;">
-          <option value="">All Fabrics</option>
-          <option>Cotton</option><option>Silk</option><option>Wool</option>
-          <option>Linen</option><option>Denim</option><option>Polyester</option>
-          <option>Rayon</option><option>Velvet</option>
-        </select>
-        <select class="select" id="filterCountry" onchange="applyFilters()" style="width:auto;flex:1;min-width:160px;">
-          <option value="">All Countries</option>
-          <option>India</option><option>China</option><option>Bangladesh</option>
-          <option>Vietnam</option><option>Turkey</option><option>Japan</option>
-          <option>USA</option><option>Italy</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Clear</button>
+      <!-- Toolbar: Tabs + Filters -->
+      <div class="explore-toolbar">
+        <div class="feed-tabs" style="display:inline-flex;background:var(--bg-section);">
+          <button class="tab-btn active" onclick="filterTab(this,'people')"><i data-lucide="users" style="width:15px;height:15px;stroke-width:1.5"></i> People</button>
+          <button class="tab-btn" onclick="filterTab(this,'companies')"><i data-lucide="building-2" style="width:15px;height:15px;stroke-width:1.5"></i> Companies</button>
+          <button class="tab-btn" onclick="filterTab(this,'trending')"><i data-lucide="trending-up" style="width:15px;height:15px;stroke-width:1.5"></i> Trending</button>
+        </div>
+        <div class="filter-row" id="filterRow">
+          <button class="filter-pill active" onclick="toggleFilter(this,'all')"><i data-lucide="layers" style="width:13px;height:13px;stroke-width:1.5"></i> All</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Textile Engineer')"><i data-lucide="cpu" style="width:13px;height:13px;stroke-width:1.5"></i> Engineers</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Fabric Designer')"><i data-lucide="palette" style="width:13px;height:13px;stroke-width:1.5"></i> Designers</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Mill Owner')"><i data-lucide="factory" style="width:13px;height:13px;stroke-width:1.5"></i> Mill Owners</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Export Manager')"><i data-lucide="globe" style="width:13px;height:13px;stroke-width:1.5"></i> Export</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Research Scientist')"><i data-lucide="flask-conical" style="width:13px;height:13px;stroke-width:1.5"></i> Research</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Cotton')"><i data-lucide="shirt" style="width:13px;height:13px;stroke-width:1.5"></i> Cotton</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Silk')"><i data-lucide="sparkles" style="width:13px;height:13px;stroke-width:1.5"></i> Silk</button>
+          <button class="filter-pill" onclick="toggleFilter(this,'Denim')"><i data-lucide="scissors" style="width:13px;height:13px;stroke-width:1.5"></i> Denim</button>
+        </div>
+      </div>
+
+      <!-- ── PEOPLE TAB ── -->
+      <div class="tab-panel active" id="panel-people">
+        <!-- Results bar -->
+        <div class="results-bar">
+          <p id="resultsCount">Showing 6 professionals</p>
+          <select class="sort-select" onchange="sortResults(this.value)" aria-label="Sort results">
+            <option value="relevance">Sort by Relevance</option>
+            <option value="connections">Most Connections</option>
+            <option value="name">Name A-Z</option>
+          </select>
+        </div>
+
+        <!-- SKELETON LOADERS -->
+        <div id="skeletonGrid" class="people-grid">
+          <div class="card" style="padding:28px 20px;text-align:center;">
+            <div class="skeleton" style="width:72px;height:72px;border-radius:50%;margin:0 auto 16px;"></div>
+            <div class="skeleton" style="width:60%;height:16px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:80%;height:14px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:40%;height:12px;margin:0 auto 16px;border-radius:8px;"></div>
+            <div style="display:flex;gap:8px;"><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div></div>
+          </div>
+          <div class="card" style="padding:28px 20px;text-align:center;">
+            <div class="skeleton" style="width:72px;height:72px;border-radius:50%;margin:0 auto 16px;"></div>
+            <div class="skeleton" style="width:55%;height:16px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:75%;height:14px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:45%;height:12px;margin:0 auto 16px;border-radius:8px;"></div>
+            <div style="display:flex;gap:8px;"><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div></div>
+          </div>
+          <div class="card" style="padding:28px 20px;text-align:center;">
+            <div class="skeleton" style="width:72px;height:72px;border-radius:50%;margin:0 auto 16px;"></div>
+            <div class="skeleton" style="width:65%;height:16px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:70%;height:14px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:38%;height:12px;margin:0 auto 16px;border-radius:8px;"></div>
+            <div style="display:flex;gap:8px;"><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div></div>
+          </div>
+          <div class="card" style="padding:28px 20px;text-align:center;">
+            <div class="skeleton" style="width:72px;height:72px;border-radius:50%;margin:0 auto 16px;"></div>
+            <div class="skeleton" style="width:58%;height:16px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:78%;height:14px;margin:0 auto 8px;border-radius:8px;"></div>
+            <div class="skeleton" style="width:42%;height:12px;margin:0 auto 16px;border-radius:8px;"></div>
+            <div style="display:flex;gap:8px;"><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div><div class="skeleton" style="flex:1;height:38px;border-radius:10px;"></div></div>
+          </div>
+        </div>
+
+        <!-- REAL RESULTS -->
+        <div id="resultsGrid" class="people-grid" style="display:none;"></div>
+      </div>
+
+      <!-- ── COMPANIES TAB ── -->
+      <div class="tab-panel" id="panel-companies">
+        <div class="results-bar">
+          <p id="companyCount">Showing 6 companies</p>
+          <select class="sort-select" aria-label="Sort companies">
+            <option value="followers">Most Followers</option>
+            <option value="name">Name A-Z</option>
+          </select>
+        </div>
+        <div id="companyGrid" class="company-grid"></div>
+      </div>
+
+      <!-- ── TRENDING TAB ── -->
+      <div class="tab-panel" id="panel-trending">
+        <div class="results-bar" style="margin-bottom:24px;">
+          <p style="font-size:14px;color:var(--text-secondary);margin:0;"><i data-lucide="flame" style="width:16px;height:16px;stroke-width:1.5;color:var(--b400);"></i> What's trending in the textile industry</p>
+        </div>
+        <div id="trendingGrid" class="trending-grid"></div>
       </div>
     </div>
-
-    <!-- Results -->
-    <div id="exploreResults" class="page-content"></div>
   </div>
 
   <div id="toast-container" class="toast-container"></div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    let currentTab = 'people';
-    let searchQuery = '';
-
-    // Check URL query
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('q')) searchQuery = urlParams.get('q');
-
+    // ── Init page ──
     initPage('explore');
 
-    function switchExploreTab(tab, btn) {
-      currentTab = tab;
-      document.querySelectorAll('[id^="tab-"]').forEach(b => {
-        b.classList.remove('active');
-        b.style.borderBottom = 'none';
-      });
+    // ── Read URL query ──
+    const urlQ = new URLSearchParams(location.search).get('q');
+    if (urlQ) document.getElementById('exploreSearch').value = urlQ;
+
+    // ── State ──
+    let currentFilter = 'all';
+    let currentSort = 'relevance';
+
+    // ── Render people cards ──
+    function renderPeopleCards(users) {
+      if (!users.length) {
+        return `
+          <div class="no-results" style="grid-column:1/-1;">
+            <div class="no-results-icon">${icon('search-x', 28)}</div>
+            <h3>No professionals found</h3>
+            <p>Try adjusting your search or filters</p>
+          </div>
+        `;
+      }
+      return users.map((u, i) => `
+        <div class="people-card reveal" data-delay="${i * 80}">
+          ${avatarHTML(u, 'lg')}
+          <div class="people-card-name">${u.name}</div>
+          <div class="people-card-role">${u.role}</div>
+          <div class="people-card-company">${u.company}</div>
+          <div class="people-card-location">${icon('map-pin', 12)} ${u.location}</div>
+          <div class="people-card-skills">
+            <span class="specialty-pill">${u.fabricType || 'Textiles'}</span>
+            ${(u.skills || []).slice(0, 2).map(s => '<span class="tag" style="font-size:12px;padding:2px 8px;">' + s + '</span>').join('')}
+          </div>
+          <div class="people-card-buttons">
+            <button class="btn btn-primary btn-sm" style="animation:none;" onclick="event.stopPropagation();connectUser('${u.id}',this)">${icon('user-plus', 14)} Connect</button>
+            <a href="profile.html?id=${u.id}" class="btn btn-outline btn-sm">${icon('eye', 14)} View</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Render company cards ──
+    function renderCompanyCards(companies) {
+      if (!companies.length) {
+        return `
+          <div class="no-results" style="grid-column:1/-1;">
+            <div class="no-results-icon">${icon('building-2', 28)}</div>
+            <h3>No companies found</h3>
+            <p>Try a different search term</p>
+          </div>
+        `;
+      }
+      return companies.map((c, i) => `
+        <div class="company-explore-card reveal" data-delay="${i * 80}">
+          <div class="company-explore-banner" style="background:linear-gradient(135deg, var(--b800) 0%, var(--bg-section) 100%);"></div>
+          <div class="company-explore-body">
+            <div class="company-explore-logo" style="background:linear-gradient(135deg, var(--b600), var(--b400));">${c.name.charAt(0)}</div>
+            <div class="company-explore-name">${c.name}</div>
+            <div class="company-explore-tagline">${c.tagline}</div>
+            <div class="company-explore-meta">
+              <span>${icon('map-pin', 13)} ${c.location}</span>
+              <span>${icon('users', 13)} ${c.employees} employees</span>
+              <span>${icon('tag', 13)} ${c.fabricType} · ${c.type}</span>
+            </div>
+            <div class="company-explore-footer">
+              <button class="btn btn-primary btn-sm" style="animation:none;" onclick="showToast('Following ${c.name}!','success');this.innerHTML='${icon('check',14)} Following';this.disabled=true;this.style.opacity='0.6';">${icon('plus', 14)} Follow</button>
+              <a href="companies.html" class="btn btn-outline btn-sm">${icon('external-link', 14)} View</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Render trending cards ──
+    function renderTrendingCards(trending) {
+      const maxPosts = 24500; // for bar width scaling
+      return trending.map((t, i) => {
+        const numericPosts = parseFloat(t.posts) * 1000;
+        const barWidth = Math.min((numericPosts / maxPosts) * 100, 100);
+        return `
+          <div class="trending-explore-card reveal" data-delay="${i * 80}" onclick="document.getElementById('exploreSearch').value='${t.tag.replace('#','')}';filterTab(document.querySelector('.tab-btn'),'people');searchPeople();">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:rgba(55,138,221,0.12);border-radius:var(--r-md);color:var(--b400);flex-shrink:0;">${icon('hash', 16)}</span>
+              <div>
+                <div class="trending-explore-tag">${t.tag}</div>
+                <div class="trending-explore-posts">${t.posts}</div>
+              </div>
+            </div>
+            <div class="trending-explore-bar">
+              <div class="trending-explore-bar-fill" style="width:${barWidth}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── Search people ──
+    function searchPeople() {
+      const q = document.getElementById('exploreSearch').value.toLowerCase().trim();
+      let results = TC_DATA.users;
+
+      // Text search
+      if (q) {
+        results = results.filter(u =>
+          (u.name + u.role + u.company + (u.fabricType || '') + (u.skills || []).join('')).toLowerCase().includes(q)
+        );
+      }
+
+      // Filter pills
+      if (currentFilter !== 'all') {
+        results = results.filter(u =>
+          u.role === currentFilter || u.fabricType === currentFilter
+        );
+      }
+
+      // Sort
+      if (currentSort === 'connections') {
+        results = [...results].sort((a, b) => (b.connections || 0) - (a.connections || 0));
+      } else if (currentSort === 'name') {
+        results = [...results].sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      // Update count
+      const countText = results.length === 1 ? '1 professional found' : results.length + ' professionals found';
+      document.getElementById('resultsCount').textContent = countText;
+
+      // Render
+      const grid = document.getElementById('resultsGrid');
+      grid.innerHTML = renderPeopleCards(results);
+      grid.style.display = 'grid';
+      document.getElementById('skeletonGrid').style.display = 'none';
+
+      // Re-init motion and icons
+      initMotion();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // ── Tab switching ──
+    function filterTab(btn, tab) {
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      btn.style.borderBottom = '2px solid var(--clr-primary)';
-      document.getElementById('filterSection').style.display = tab === 'trending' ? 'none' : 'block';
-      renderResults();
-    }
 
-    function performSearch(q) {
-      searchQuery = q;
-      renderResults();
-    }
+      // Show/hide panels
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tab).classList.add('active');
 
-    function applyFilters() { renderResults(); }
-    function clearFilters() {
-      document.getElementById('filterRole').value = '';
-      document.getElementById('filterFabric').value = '';
-      document.getElementById('filterCountry').value = '';
-      searchQuery = '';
-      document.getElementById('searchInput').value = '';
-      renderResults();
-    }
+      // Show/hide filter row for people only
+      const filterRow = document.getElementById('filterRow');
+      filterRow.style.display = tab === 'people' ? 'flex' : 'none';
 
-    function renderResults() {
-      const container = document.getElementById('exploreResults');
-      if (currentTab === 'people') renderPeople(container);
-      else if (currentTab === 'companies') renderCompanies(container);
-      else renderTrending(container);
-    }
-
-    function renderPeople(container) {
-      const role = document.getElementById('filterRole').value;
-      const fabric = document.getElementById('filterFabric').value;
-      const country = document.getElementById('filterCountry').value;
-      const q = searchQuery.toLowerCase().replace('#','');
-
-      let users = TC_DATA.users.filter(u => {
-        const matchQ = !q || u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q) || (u.company||'').toLowerCase().includes(q) || (u.fabricType||'').toLowerCase().includes(q);
-        const matchRole = !role || u.role === role;
-        const matchFabric = !fabric || u.fabricType === fabric;
-        const matchCountry = !country || u.country === country;
-        return matchQ && matchRole && matchFabric && matchCountry;
-      });
-
-      if (users.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No professionals found. Try different filters.</div></div>`;
-        return;
+      // Render company or trending if needed
+      if (tab === 'companies' && !document.getElementById('companyGrid').innerHTML) {
+        renderCompanies();
+      }
+      if (tab === 'trending' && !document.getElementById('trendingGrid').innerHTML) {
+        renderTrending();
       }
 
-      container.innerHTML = `
-        <div style="margin-bottom:16px;font-size:0.875rem;color:var(--txt-muted);">${users.length} professional${users.length !== 1 ? 's' : ''} found</div>
-        <div class="people-grid stagger-children">
-          ${users.map(u => `
-            <div class="people-card" onclick="window.location.href='profile.html?id=${u.id}'">
-              ${avatarHTML(u, 'lg')}
-              <div class="people-card-name">${u.name}</div>
-              <div class="people-card-role">${u.role}</div>
-              <div class="people-card-company">${u.company || '—'}</div>
-              <div style="font-size:0.78rem;color:var(--txt-muted);margin-top:4px;">📍 ${u.location}</div>
-              <div class="people-card-skills">
-                <span class="badge badge-primary" style="font-size:0.72rem;">${u.fabricType || 'Textiles'}</span>
-                <span class="badge badge-muted" style="font-size:0.72rem;">${u.connections.toLocaleString()} connections</span>
-              </div>
-              <div style="display:flex;gap:8px;margin-top:14px;width:100%;">
-                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="event.stopPropagation();connectUser('${u.id}', this)">+ Connect</button>
-                <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="event.stopPropagation();window.location.href='profile.html?id=${u.id}'">View</button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function renderCompanies(container) {
-      const q = searchQuery.toLowerCase();
-      let companies = TC_DATA.companies.filter(c => {
-        return !q || c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q) || (c.fabricType||'').toLowerCase().includes(q);
-      });
+    // ── Filter pills ──
+    function toggleFilter(pill, filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      searchPeople();
+    }
 
-      if (companies.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-text">No companies found.</div></div>`;
-        return;
+    // ── Sort ──
+    function sortResults(value) {
+      currentSort = value;
+      searchPeople();
+    }
+
+    // ── Render companies ──
+    function renderCompanies() {
+      const q = document.getElementById('exploreSearch').value.toLowerCase().trim();
+      let companies = TC_DATA.companies;
+      if (q) {
+        companies = companies.filter(c =>
+          (c.name + c.tagline + c.type + c.fabricType + c.location).toLowerCase().includes(q)
+        );
       }
-
-      container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;" class="stagger-children">
-          ${companies.map(c => `
-            <div class="company-card" onclick="window.location.href='companies.html?id=${c.id}'">
-              <div class="company-card-banner" style="background:linear-gradient(135deg,${c.color}33,${c.color}11);"></div>
-              <div class="company-card-body">
-                <div class="company-logo" style="background:linear-gradient(135deg,${c.color},${c.color}99);">${c.name[0]}</div>
-                <div class="company-name">${c.name}</div>
-                <div class="company-tagline">${c.tagline}</div>
-                <div class="company-meta">
-                  <span>🏷️ ${c.type}</span>
-                  <span>📍 ${c.location}</span>
-                  <span>🧵 ${c.fabricType}</span>
-                  <span>👥 ${c.employees} employees</span>
-                </div>
-                <div class="company-followers">${c.followers.toLocaleString()} followers</div>
-                <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;" onclick="event.stopPropagation();followCompany(this,'${c.name}')">+ Follow</button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
+      document.getElementById('companyCount').textContent = companies.length + ' companies found';
+      document.getElementById('companyGrid').innerHTML = renderCompanyCards(companies);
+      initMotion();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function renderTrending(container) {
-      container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;" class="stagger-children">
-          ${TC_DATA.trending.map((t, i) => `
-            <div class="card hover-lift" onclick="document.getElementById('searchInput').value='${t.tag}';switchExploreTab('people',document.getElementById('tab-people'));performSearch('${t.tag}');" style="cursor:pointer;">
-              <div style="font-size:2rem;margin-bottom:12px;">${['🔥','⚡','🌿','🇮🇳','🌟','♻️','🧪','📦'][i]}</div>
-              <div style="font-size:1.05rem;font-weight:700;color:var(--clr-primary-light);">${t.tag}</div>
-              <div style="font-size:0.85rem;color:var(--txt-muted);margin-top:6px;">${t.posts}</div>
-              <div style="font-size:0.8rem;color:var(--txt-secondary);margin-top:8px;">Trending in Textiles</div>
-            </div>
-          `).join('')}
-        </div>
-      `;
+    // ── Render trending ──
+    function renderTrending() {
+      document.getElementById('trendingGrid').innerHTML = renderTrendingCards(TC_DATA.trending);
+      initMotion();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function followCompany(btn, name) {
-      btn.textContent = '✓ Following';
-      btn.disabled = true;
-      showToast('Following ' + name, 'success');
-    }
+    // ── Skeleton → reveal with delay ──
+    setTimeout(() => {
+      searchPeople();
+    }, 800);
 
-    // Initialize with URL query if present
-    if (searchQuery) document.getElementById('searchInput').value = searchQuery;
-    renderResults();
+    // Init Lucide icons
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   </script>
 </body>
 </html>

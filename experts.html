@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Experts – Texnect</title>
+  <meta name="description" content="Find textile experts by domain — Spinning, Weaving, Dyeing, Knitting, Quality Control and more on Texnect.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div style="padding-top:var(--nav-height);">
+    <!-- HERO -->
+    <div class="explore-hero" style="padding-bottom:48px;">
+      <div class="mesh-lines"></div>
+      <div class="orb orb-1"></div>
+      <div class="orb orb-3" style="top:20%;left:70%;"></div>
+      <div style="position:relative;z-index:1;">
+        <div class="hero-label" style="margin:0 auto 20px;width:fit-content;">
+          <i data-lucide="award" style="width:16px;height:16px;stroke-width:1.5"></i>
+          Textile Expert Directory
+        </div>
+        <h1 class="font-sora" style="font-size:var(--fs-h1);color:var(--text-primary);letter-spacing:-0.02em;">
+          Find <span style="color:var(--b200);">Textile Experts</span>
+        </h1>
+        <p style="font-size:17px;color:var(--text-secondary);max-width:520px;margin:12px auto 0;line-height:1.6;">
+          Connect with verified experts across Spinning, Weaving, Dyeing, Knitting, Quality Control, and more
+        </p>
+
+        <!-- Search -->
+        <div class="explore-search-bar" style="margin-top:28px;">
+          <span class="explore-search-icon"><i data-lucide="search" style="width:22px;height:22px;stroke-width:1.5"></i></span>
+          <input type="text" class="search-input" id="expertSearch" placeholder="Search experts by name, domain, or specialization..." data-cycle onkeyup="renderExperts()">
+          <button class="explore-search-btn" onclick="renderExperts()"><i data-lucide="arrow-right" style="width:18px;height:18px;stroke-width:1.5"></i></button>
+        </div>
+
+        <!-- Stats -->
+        <div style="display:flex;gap:32px;justify-content:center;margin-top:28px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div class="hero-stat-value count-up" data-target="850" data-suffix="+">0</div>
+            <div class="hero-stat-label">Verified Experts</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="hero-stat-value count-up" data-target="10" data-suffix="">0</div>
+            <div class="hero-stat-label">Domains</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="hero-stat-value count-up" data-target="2400" data-suffix="+">0</div>
+            <div class="hero-stat-label">Problems Solved</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOMAIN CHIPS -->
+    <div class="container" style="padding-top:28px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-hint);font-weight:600;margin-bottom:12px;">
+        Filter by Domain
+      </div>
+      <div class="industry-strip" id="domainStrip" style="margin-bottom:24px;"></div>
+
+      <!-- RESULTS -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <p style="font-size:13px;color:var(--text-hint);" id="expertCount">Showing 8 experts</p>
+        <div style="display:flex;gap:8px;">
+          <button class="tag active" id="filterAll" onclick="setAvailFilter('all',this)">All</button>
+          <button class="tag" id="filterAvail" onclick="setAvailFilter('available',this)"><i data-lucide="check-circle" style="width:12px;height:12px;stroke-width:1.5"></i> Available Now</button>
+          <button class="tag" id="filterTop" onclick="setAvailFilter('top',this)"><i data-lucide="star" style="width:12px;height:12px;stroke-width:1.5"></i> Top Rated</button>
+        </div>
+      </div>
+
+      <!-- Skeleton -->
+      <div id="skeletonExperts" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+        <div class="card" style="padding:24px;"><div class="skeleton" style="width:68px;height:68px;border-radius:50%;margin:0 auto 14px;"></div><div class="skeleton" style="width:60%;height:16px;margin:0 auto 8px;"></div><div class="skeleton" style="width:80%;height:14px;margin:0 auto 8px;"></div><div class="skeleton" style="width:40%;height:12px;margin:0 auto 16px;"></div><div class="skeleton" style="width:100%;height:40px;border-radius:10px;"></div></div>
+        <div class="card" style="padding:24px;"><div class="skeleton" style="width:68px;height:68px;border-radius:50%;margin:0 auto 14px;"></div><div class="skeleton" style="width:60%;height:16px;margin:0 auto 8px;"></div><div class="skeleton" style="width:80%;height:14px;margin:0 auto 8px;"></div><div class="skeleton" style="width:40%;height:12px;margin:0 auto 16px;"></div><div class="skeleton" style="width:100%;height:40px;border-radius:10px;"></div></div>
+        <div class="card" style="padding:24px;"><div class="skeleton" style="width:68px;height:68px;border-radius:50%;margin:0 auto 14px;"></div><div class="skeleton" style="width:60%;height:16px;margin:0 auto 8px;"></div><div class="skeleton" style="width:80%;height:14px;margin:0 auto 8px;"></div><div class="skeleton" style="width:40%;height:12px;margin:0 auto 16px;"></div><div class="skeleton" style="width:100%;height:40px;border-radius:10px;"></div></div>
+      </div>
+
+      <!-- Real grid -->
+      <div id="expertsGrid" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('experts');
+
+    let activeDomain = 'all';
+    let availFilter = 'all';
+
+    // Render domain chips
+    const domains = TC_DATA.expertDomains;
+    const domainIcons = {
+      'Spinning':'cog','Weaving':'grid-3x3','Knitting':'link','Dyeing & Printing':'palette',
+      'Garments':'scissors','Quality Control':'shield-check','Textile Testing':'flask-conical',
+      'Sustainability':'leaf','Textile Machinery':'wrench','Technical Textiles':'cpu'
+    };
+    document.getElementById('domainStrip').innerHTML =
+      `<div class="industry-chip ${activeDomain==='all'?'active':''}" onclick="setDomain('all',this)">
+        <span class="industry-chip-icon"><i data-lucide="layers" style="width:22px;height:22px;stroke-width:1.5;color:var(--b400);"></i></span>
+        <span class="industry-chip-label">All Domains</span>
+      </div>` +
+      domains.map(d =>
+        `<div class="industry-chip" onclick="setDomain('${d}',this)">
+          <span class="industry-chip-icon"><i data-lucide="${domainIcons[d]||'circle'}" style="width:22px;height:22px;stroke-width:1.5;color:var(--b200);"></i></span>
+          <span class="industry-chip-label">${d}</span>
+        </div>`
+      ).join('');
+
+    function setDomain(domain, el) {
+      activeDomain = domain;
+      document.querySelectorAll('.industry-chip').forEach(c => c.classList.remove('active'));
+      if(el) el.classList.add('active');
+      renderExperts();
+    }
+
+    function setAvailFilter(filter, el) {
+      availFilter = filter;
+      document.querySelectorAll('#filterAll,#filterAvail,#filterTop').forEach(t => t.classList.remove('active'));
+      if(el) el.classList.add('active');
+      renderExperts();
+    }
+
+    function renderExperts() {
+      const q = (document.getElementById('expertSearch')?.value||'').toLowerCase();
+      let experts = TC_DATA.experts;
+
+      if(activeDomain !== 'all') experts = experts.filter(e => e.domain === activeDomain);
+      if(availFilter === 'available') experts = experts.filter(e => e.available);
+      if(availFilter === 'top') experts = experts.sort((a,b) => b.rating - a.rating);
+      if(q) {
+        experts = experts.filter(e => {
+          const user = getUserById(e.userId);
+          return (user?.name||'').toLowerCase().includes(q) ||
+                 e.domain.toLowerCase().includes(q) ||
+                 e.specialization.toLowerCase().includes(q);
+        });
+      }
+
+      document.getElementById('expertCount').textContent = experts.length + ' expert' + (experts.length!==1?'s':'') + ' found';
+      const grid = document.getElementById('expertsGrid');
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(300px,1fr))';
+      grid.style.gap = '16px';
+      grid.style.paddingBottom = '60px';
+      document.getElementById('skeletonExperts').style.display = 'none';
+
+      if(!experts.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div style="opacity:0.3;margin-bottom:16px;">${icon('search-x',48)}</div><div class="empty-state-text">No experts found for this filter</div></div>`;
+        if(typeof lucide!=='undefined') lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = experts.map((e,i) => {
+        const user = getUserById(e.userId);
+        if(!user) return '';
+        const stars = '★'.repeat(Math.floor(e.rating)) + (e.rating % 1 >= 0.5 ? '½' : '');
+        return `
+          <div class="people-card reveal" data-delay="${i*80}" style="padding:24px 20px;">
+            <div style="position:relative;display:inline-block;">
+              ${avatarHTML(user,'lg')}
+              ${e.available ? `<div style="position:absolute;bottom:2px;right:2px;width:14px;height:14px;background:var(--emerald);border-radius:50%;border:2px solid var(--bg-card);box-shadow:0 0 8px rgba(16,185,129,0.5);"></div>` : ''}
+            </div>
+            <div class="people-card-name" style="margin-top:12px;">${user.name}</div>
+            <div class="people-card-role">${e.specialization}</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;">
+              <span style="color:var(--b200);font-size:14px;font-weight:700;">${e.rating}</span>
+              <span style="color:var(--amber);font-size:12px;">${stars}</span>
+              <span style="color:var(--text-hint);font-size:12px;">(${e.reviews})</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px;">
+              <span class="specialty-pill" style="--domain:${getDomainColor(e.domain)};--domain-soft:${getDomainColor(e.domain)}12;">${e.domain}</span>
+              <span class="tag" style="font-size:12px;padding:2px 8px;">${e.experience}</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:8px;font-size:12px;color:var(--text-hint);">
+              ${icon('map-pin',12)} ${e.location}
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;">
+              <span style="font-size:12px;color:var(--text-secondary);">${icon('check-circle',12)} ${e.solved} solved</span>
+              <span style="font-size:12px;color:var(--b400);">${e.rate}</span>
+            </div>
+            <div class="people-card-buttons" style="margin-top:14px;">
+              <a href="problems.html" class="btn btn-primary btn-sm" style="flex:1;animation:none;">${icon('help-circle',14)} Ask Question</a>
+              <button class="btn btn-outline btn-sm" style="flex:1;" onclick="connectUser('${user.id}',this)">${icon('user-plus',14)} Connect</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      initMotion();
+      if(typeof lucide!=='undefined') lucide.createIcons();
+    }
+
+    // Show skeletons then reveal
+    setTimeout(renderExperts, 800);
+    if(typeof lucide!=='undefined') lucide.createIcons();
+  </script>
+</body>
+</html>
