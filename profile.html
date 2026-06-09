@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile – TextileConnect</title>
+  <meta name="description" content="Textile professional profile on TextileConnect.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div style="max-width:900px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content" id="profileRoot">
+    <!-- Profile loads here -->
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    Auth.requireAuth();
+    initPage('profile');
+
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('id');
+    const currentUser = Auth.getCurrentUser();
+    const profileUser = userId ? getUserById(userId) : currentUser;
+    const isOwnProfile = !userId || userId === currentUser.id;
+
+    function renderProfile() {
+      if (!profileUser) {
+        document.getElementById('profileRoot').innerHTML = `<div class="empty-state"><div class="empty-state-icon">❓</div><div class="empty-state-text">User not found</div></div>`;
+        return;
+      }
+
+      const skills = profileUser.skills || [];
+      const experience = profileUser.experience || [];
+      const certifications = profileUser.certifications || [];
+      const userPosts = profileUser.posts ? profileUser.posts.map(id => TC_DATA.posts.find(p => p.id === id)).filter(Boolean) : [];
+
+      document.getElementById('profileRoot').innerHTML = `
+        <!-- Banner + Info -->
+        <div class="profile-banner">
+          <div class="profile-banner-pattern"></div>
+        </div>
+        <div class="profile-info-card">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div class="profile-avatar-wrapper">
+              ${avatarHTML(profileUser, '2xl')}
+              <div class="profile-online-dot"></div>
+            </div>
+            <div class="profile-actions">
+              ${isOwnProfile
+                ? `<button class="btn btn-outline" onclick="editProfile()">✏️ Edit Profile</button>
+                   <button class="btn btn-ghost" onclick="shareProfile()">↗️ Share Profile</button>`
+                : `<button class="btn btn-primary" onclick="connectUser('${profileUser.id}', this)">+ Connect</button>
+                   <button class="btn btn-outline" onclick="window.location.href='messages.html'">💬 Message</button>
+                   <button class="btn btn-ghost" onclick="followUser(this)">Follow</button>`
+              }
+            </div>
+          </div>
+
+          <h1 class="profile-name">${profileUser.name}</h1>
+          <p class="profile-title">${profileUser.title || profileUser.role}</p>
+          <p class="profile-location">📍 ${profileUser.location || '—'} · 🏭 ${profileUser.company || 'Independent'}</p>
+
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;">
+            <span class="badge badge-primary">🧵 ${profileUser.fabricType || 'Textiles'}</span>
+            <span class="badge badge-accent">👤 ${profileUser.role}</span>
+            <span class="badge badge-success">🌍 ${profileUser.country || 'Global'}</span>
+          </div>
+
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <div class="profile-stat-value gradient-text">${(profileUser.connections || 0).toLocaleString()}</div>
+              <div class="profile-stat-label">Connections</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value gradient-text">${(profileUser.followers || 0).toLocaleString()}</div>
+              <div class="profile-stat-label">Followers</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value gradient-text">${userPosts.length || 0}</div>
+              <div class="profile-stat-label">Posts</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value gradient-text">${experience.length}</div>
+              <div class="profile-stat-label">Positions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div class="profile-section">
+          <div class="profile-section-title">📝 About</div>
+          <p style="color:var(--txt-secondary);line-height:1.7;font-size:0.95rem;">
+            ${profileUser.about || 'No bio added yet. ' + (isOwnProfile ? '<a href="#" onclick="editProfile()" style="color:var(--clr-primary-light)">Add one now →</a>' : '')}
+          </p>
+        </div>
+
+        <!-- Skills -->
+        ${skills.length > 0 ? `
+        <div class="profile-section">
+          <div class="profile-section-title">🎯 Skills & Expertise</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            ${skills.map(s => `<span class="skill-pill">${s}</span>`).join('')}
+          </div>
+        </div>` : ''}
+
+        <!-- Experience -->
+        ${experience.length > 0 ? `
+        <div class="profile-section">
+          <div class="profile-section-title">💼 Experience</div>
+          <div>
+            ${experience.map(e => `
+              <div class="experience-item">
+                <div class="exp-icon">🏭</div>
+                <div style="flex:1;">
+                  <div class="exp-title">${e.title}</div>
+                  <div class="exp-company">${e.company}</div>
+                  <div class="exp-years">${e.years}</div>
+                  <div class="exp-desc">${e.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
+
+        <!-- Certifications -->
+        ${certifications.length > 0 ? `
+        <div class="profile-section">
+          <div class="profile-section-title">🏆 Certifications & Awards</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            ${certifications.map(c => `
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-input);border-radius:var(--r-md);border:1px solid var(--border-subtle);">
+                <span style="font-size:1.3rem;">🎖️</span>
+                <span style="font-size:0.9rem;font-weight:500;">${c}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
+
+        <!-- Activity / Posts -->
+        <div class="profile-section">
+          <div class="profile-section-title">📰 Recent Activity</div>
+          ${userPosts.length > 0
+            ? userPosts.map(p => renderPost(p)).join('')
+            : `<div class="empty-state" style="padding:32px;">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-text">${isOwnProfile ? 'Share your first post!' : 'No posts yet.'}</div>
+                ${isOwnProfile ? `<button class="btn btn-primary" style="margin-top:16px;" onclick="openPostModal()">Create Post</button>` : ''}
+              </div>`
+          }
+        </div>
+
+        <!-- People Also Viewed -->
+        <div class="profile-section">
+          <div class="profile-section-title">👥 People Also Viewed</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            ${TC_DATA.users.filter(u => u.id !== profileUser.id).slice(0,4).map(u => `
+              <div class="suggestion-item" style="padding:12px 0;cursor:pointer;" onclick="window.location.href='profile.html?id=${u.id}'">
+                ${avatarHTML(u, 'sm')}
+                <div class="suggestion-info">
+                  <div class="suggestion-name">${u.name}</div>
+                  <div class="suggestion-role">${u.role} · ${u.location}</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();connectUser('${u.id}', this)">+ Connect</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function editProfile() {
+      showToast('Profile editing coming soon!', 'info');
+    }
+    function shareProfile() {
+      showToast('Profile link copied!', 'success');
+    }
+    function followUser(btn) {
+      btn.textContent = '✓ Following';
+      btn.disabled = true;
+      showToast('Following ' + profileUser.name, 'success');
+    }
+
+    renderProfile();
+  </script>
+</body>
+</html>

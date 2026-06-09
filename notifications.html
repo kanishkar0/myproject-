@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications – TextileConnect</title>
+  <meta name="description" content="Stay updated with your latest connections, likes, and activity on TextileConnect.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div style="max-width:760px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <h1 style="font-size:1.8rem;font-weight:800;">🔔 Notifications</h1>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost btn-sm" onclick="markAllRead()">✓ Mark all read</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Clear all</button>
+      </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border-subtle);padding-bottom:0;">
+      <button class="tab-btn active" onclick="filterNotifs('all', this)" style="border-radius:0;border-bottom:2px solid var(--clr-primary);">All</button>
+      <button class="tab-btn" onclick="filterNotifs('unread', this)" style="border-radius:0;">Unread <span id="unreadBadge" class="badge badge-primary" style="margin-left:6px;font-size:0.7rem;"></span></button>
+      <button class="tab-btn" onclick="filterNotifs('connect', this)" style="border-radius:0;">Connections</button>
+      <button class="tab-btn" onclick="filterNotifs('like', this)" style="border-radius:0;">Likes</button>
+      <button class="tab-btn" onclick="filterNotifs('job', this)" style="border-radius:0;">Jobs</button>
+    </div>
+
+    <div id="notifContainer" class="card" style="padding:0;overflow:hidden;"></div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    Auth.requireAuth();
+    initPage('notifications');
+
+    let currentFilter = 'all';
+    let notifications = JSON.parse(JSON.stringify(TC_DATA.notifications));
+
+    const notifIcons = {
+      like: { icon: '❤️', bg: 'rgba(239,68,68,0.15)', color: 'var(--clr-danger)' },
+      comment: { icon: '💬', bg: 'rgba(79,70,229,0.15)', color: 'var(--clr-primary-light)' },
+      connect: { icon: '🤝', bg: 'rgba(16,185,129,0.15)', color: 'var(--clr-success)' },
+      follow: { icon: '👤', bg: 'rgba(245,158,11,0.15)', color: 'var(--clr-accent)' },
+      job: { icon: '💼', bg: 'rgba(79,70,229,0.15)', color: 'var(--clr-primary-light)' },
+      milestone: { icon: '🏆', bg: 'rgba(245,158,11,0.15)', color: 'var(--clr-accent)' }
+    };
+
+    function updateUnreadBadge() {
+      const count = notifications.filter(n => !n.read).length;
+      const badge = document.getElementById('unreadBadge');
+      badge.textContent = count > 0 ? count : '';
+    }
+
+    function renderNotifications() {
+      let filtered = notifications;
+      if (currentFilter === 'unread') filtered = notifications.filter(n => !n.read);
+      else if (currentFilter !== 'all') filtered = notifications.filter(n => n.type === currentFilter);
+
+      const container = document.getElementById('notifContainer');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔔</div><div class="empty-state-text">No notifications here yet</div></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(n => {
+        const style = notifIcons[n.type] || notifIcons.like;
+        const user = n.userId ? getUserById(n.userId) : null;
+        return `
+          <div class="notif-item ${n.read ? '' : 'unread'} animate-fadeInUp" onclick="readNotif('${n.id}', this)">
+            ${!n.read ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--clr-primary);flex-shrink:0;margin-top:8px;box-shadow:0 0 6px var(--clr-primary);"></div>' : '<div style="width:8px;"></div>'}
+            <div class="notif-icon-wrap" style="background:${style.bg};">
+              ${style.icon}
+            </div>
+            <div style="flex:1;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+              <div class="notif-info">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  ${user ? avatarHTML(user, 'sm') : ''}
+                  <div class="notif-msg">${n.message}</div>
+                </div>
+                <div class="notif-time">${n.time}</div>
+              </div>
+              <div style="flex-shrink:0;">
+                ${n.type === 'connect' ? `
+                  <div style="display:flex;gap:6px;">
+                    <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();acceptConnect('${n.id}', this)">Accept</button>
+                    <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();ignoreConnect('${n.id}', this)">Ignore</button>
+                  </div>` : n.type === 'job' ? `
+                  <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();window.location.href='jobs.html'">View Job</button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function readNotif(id, el) {
+      const n = notifications.find(n => n.id === id);
+      if (n) n.read = true;
+      el.classList.remove('unread');
+      updateUnreadBadge();
+    }
+
+    function markAllRead() {
+      notifications.forEach(n => n.read = true);
+      renderNotifications();
+      updateUnreadBadge();
+      showToast('All notifications marked as read', 'success');
+    }
+
+    function clearAll() {
+      if (currentFilter === 'all') notifications = [];
+      else notifications = notifications.filter(n => n.type !== currentFilter && !(currentFilter === 'unread' && !n.read));
+      renderNotifications();
+      updateUnreadBadge();
+      showToast('Notifications cleared', 'info');
+    }
+
+    function filterNotifs(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.borderBottom = 'none';
+      });
+      btn.classList.add('active');
+      btn.style.borderBottom = '2px solid var(--clr-primary)';
+      renderNotifications();
+    }
+
+    function acceptConnect(id, btn) {
+      btn.closest('[style*="display:flex;gap:6px"]').innerHTML = '<span style="font-size:0.82rem;color:var(--clr-success);font-weight:600;">✓ Connected!</span>';
+      showToast('Connection accepted! 🎉', 'success');
+      readNotif(id, btn.closest('.notif-item'));
+    }
+
+    function ignoreConnect(id, btn) {
+      btn.closest('[style*="display:flex;gap:6px"]').remove();
+      readNotif(id, btn.closest('.notif-item'));
+    }
+
+    // Init
+    renderNotifications();
+    updateUnreadBadge();
+  </script>
+</body>
+</html>

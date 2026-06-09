@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore – TextileConnect</title>
+  <meta name="description" content="Search and discover textile professionals, companies, and expertise on TextileConnect.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div style="max-width:1100px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content">
+
+    <!-- Search Hero -->
+    <div class="explore-search-hero">
+      <h1 style="font-size:clamp(1.5rem,4vw,2.4rem);font-weight:800;margin-bottom:8px;">🔍 Explore Textile Professionals</h1>
+      <p style="color:var(--txt-secondary);">Search 1.2M+ professionals by name, role, fabric type, or company</p>
+      <div class="explore-search-bar">
+        <input type="text" id="searchInput" placeholder="Search people, companies, skills…" oninput="performSearch(this.value)">
+        <button class="btn btn-primary" onclick="performSearch(document.getElementById('searchInput').value)">Search</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--border-subtle);">
+      <button class="tab-btn active" id="tab-people" onclick="switchExploreTab('people', this)" style="border-radius:0;border-bottom:2px solid var(--clr-primary);padding:12px 24px;">👤 People</button>
+      <button class="tab-btn" id="tab-companies" onclick="switchExploreTab('companies', this)" style="border-radius:0;padding:12px 24px;">🏭 Companies</button>
+      <button class="tab-btn" id="tab-trending" onclick="switchExploreTab('trending', this)" style="border-radius:0;padding:12px 24px;">🔥 Trending</button>
+    </div>
+
+    <!-- Filters -->
+    <div id="filterSection">
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <select class="select" id="filterRole" onchange="applyFilters()" style="width:auto;flex:1;min-width:160px;">
+          <option value="">All Roles</option>
+          <option>Textile Manufacturer</option>
+          <option>Fabric Designer</option>
+          <option>Yarn Trader</option>
+          <option>Fabric Buyer</option>
+          <option>Quality Inspector</option>
+          <option>Textile Engineer</option>
+          <option>Mill Owner</option>
+          <option>Export Manager</option>
+          <option>Textile Chemist</option>
+          <option>Research Scientist</option>
+        </select>
+        <select class="select" id="filterFabric" onchange="applyFilters()" style="width:auto;flex:1;min-width:160px;">
+          <option value="">All Fabrics</option>
+          <option>Cotton</option><option>Silk</option><option>Wool</option>
+          <option>Linen</option><option>Denim</option><option>Polyester</option>
+          <option>Rayon</option><option>Velvet</option>
+        </select>
+        <select class="select" id="filterCountry" onchange="applyFilters()" style="width:auto;flex:1;min-width:160px;">
+          <option value="">All Countries</option>
+          <option>India</option><option>China</option><option>Bangladesh</option>
+          <option>Vietnam</option><option>Turkey</option><option>Japan</option>
+          <option>USA</option><option>Italy</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Clear</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="exploreResults" class="page-content"></div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentTab = 'people';
+    let searchQuery = '';
+
+    // Check URL query
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('q')) searchQuery = urlParams.get('q');
+
+    initPage('explore');
+
+    function switchExploreTab(tab, btn) {
+      currentTab = tab;
+      document.querySelectorAll('[id^="tab-"]').forEach(b => {
+        b.classList.remove('active');
+        b.style.borderBottom = 'none';
+      });
+      btn.classList.add('active');
+      btn.style.borderBottom = '2px solid var(--clr-primary)';
+      document.getElementById('filterSection').style.display = tab === 'trending' ? 'none' : 'block';
+      renderResults();
+    }
+
+    function performSearch(q) {
+      searchQuery = q;
+      renderResults();
+    }
+
+    function applyFilters() { renderResults(); }
+    function clearFilters() {
+      document.getElementById('filterRole').value = '';
+      document.getElementById('filterFabric').value = '';
+      document.getElementById('filterCountry').value = '';
+      searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      renderResults();
+    }
+
+    function renderResults() {
+      const container = document.getElementById('exploreResults');
+      if (currentTab === 'people') renderPeople(container);
+      else if (currentTab === 'companies') renderCompanies(container);
+      else renderTrending(container);
+    }
+
+    function renderPeople(container) {
+      const role = document.getElementById('filterRole').value;
+      const fabric = document.getElementById('filterFabric').value;
+      const country = document.getElementById('filterCountry').value;
+      const q = searchQuery.toLowerCase().replace('#','');
+
+      let users = TC_DATA.users.filter(u => {
+        const matchQ = !q || u.name.toLowerCase().includes(q) || u.role.toLowerCase().includes(q) || (u.company||'').toLowerCase().includes(q) || (u.fabricType||'').toLowerCase().includes(q);
+        const matchRole = !role || u.role === role;
+        const matchFabric = !fabric || u.fabricType === fabric;
+        const matchCountry = !country || u.country === country;
+        return matchQ && matchRole && matchFabric && matchCountry;
+      });
+
+      if (users.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No professionals found. Try different filters.</div></div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="margin-bottom:16px;font-size:0.875rem;color:var(--txt-muted);">${users.length} professional${users.length !== 1 ? 's' : ''} found</div>
+        <div class="people-grid stagger-children">
+          ${users.map(u => `
+            <div class="people-card" onclick="window.location.href='profile.html?id=${u.id}'">
+              ${avatarHTML(u, 'lg')}
+              <div class="people-card-name">${u.name}</div>
+              <div class="people-card-role">${u.role}</div>
+              <div class="people-card-company">${u.company || '—'}</div>
+              <div style="font-size:0.78rem;color:var(--txt-muted);margin-top:4px;">📍 ${u.location}</div>
+              <div class="people-card-skills">
+                <span class="badge badge-primary" style="font-size:0.72rem;">${u.fabricType || 'Textiles'}</span>
+                <span class="badge badge-muted" style="font-size:0.72rem;">${u.connections.toLocaleString()} connections</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:14px;width:100%;">
+                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="event.stopPropagation();connectUser('${u.id}', this)">+ Connect</button>
+                <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="event.stopPropagation();window.location.href='profile.html?id=${u.id}'">View</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderCompanies(container) {
+      const q = searchQuery.toLowerCase();
+      let companies = TC_DATA.companies.filter(c => {
+        return !q || c.name.toLowerCase().includes(q) || c.type.toLowerCase().includes(q) || (c.fabricType||'').toLowerCase().includes(q);
+      });
+
+      if (companies.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-text">No companies found.</div></div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;" class="stagger-children">
+          ${companies.map(c => `
+            <div class="company-card" onclick="window.location.href='companies.html?id=${c.id}'">
+              <div class="company-card-banner" style="background:linear-gradient(135deg,${c.color}33,${c.color}11);"></div>
+              <div class="company-card-body">
+                <div class="company-logo" style="background:linear-gradient(135deg,${c.color},${c.color}99);">${c.name[0]}</div>
+                <div class="company-name">${c.name}</div>
+                <div class="company-tagline">${c.tagline}</div>
+                <div class="company-meta">
+                  <span>🏷️ ${c.type}</span>
+                  <span>📍 ${c.location}</span>
+                  <span>🧵 ${c.fabricType}</span>
+                  <span>👥 ${c.employees} employees</span>
+                </div>
+                <div class="company-followers">${c.followers.toLocaleString()} followers</div>
+                <button class="btn btn-outline btn-sm" style="margin-top:14px;width:100%;" onclick="event.stopPropagation();followCompany(this,'${c.name}')">+ Follow</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderTrending(container) {
+      container.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;" class="stagger-children">
+          ${TC_DATA.trending.map((t, i) => `
+            <div class="card hover-lift" onclick="document.getElementById('searchInput').value='${t.tag}';switchExploreTab('people',document.getElementById('tab-people'));performSearch('${t.tag}');" style="cursor:pointer;">
+              <div style="font-size:2rem;margin-bottom:12px;">${['🔥','⚡','🌿','🇮🇳','🌟','♻️','🧪','📦'][i]}</div>
+              <div style="font-size:1.05rem;font-weight:700;color:var(--clr-primary-light);">${t.tag}</div>
+              <div style="font-size:0.85rem;color:var(--txt-muted);margin-top:6px;">${t.posts}</div>
+              <div style="font-size:0.8rem;color:var(--txt-secondary);margin-top:8px;">Trending in Textiles</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function followCompany(btn, name) {
+      btn.textContent = '✓ Following';
+      btn.disabled = true;
+      showToast('Following ' + name, 'success');
+    }
+
+    // Initialize with URL query if present
+    if (searchQuery) document.getElementById('searchInput').value = searchQuery;
+    renderResults();
+  </script>
+</body>
+</html>

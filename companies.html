@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Companies – TextileConnect</title>
+  <meta name="description" content="Discover and follow leading textile companies worldwide on TextileConnect.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div style="max-width:1100px;margin:0 auto;padding:calc(var(--nav-height) + 24px) 24px 40px;" class="page-content">
+
+    <!-- Header -->
+    <div style="margin-bottom:32px;">
+      <h1 style="font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;margin-bottom:8px;">🏭 Textile Companies</h1>
+      <p style="color:var(--txt-secondary);">Discover, follow, and connect with 8,400+ leading textile companies worldwide</p>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;">
+      <input type="text" class="input" id="companySearch" placeholder="🔍 Search companies…" oninput="renderCompanies()" style="flex:1;min-width:200px;max-width:340px;">
+      <select class="select" id="companyType" onchange="renderCompanies()" style="width:auto;min-width:160px;">
+        <option value="">All Types</option>
+        <option>Spinning Mill</option>
+        <option>Weaving & Design</option>
+        <option>Integrated Textile</option>
+        <option>Yarn & Fabric</option>
+        <option>Home Textiles</option>
+        <option>Fibre Manufacturing</option>
+        <option>Dyeing & Printing</option>
+      </select>
+      <select class="select" id="companyFabric" onchange="renderCompanies()" style="width:auto;min-width:140px;">
+        <option value="">All Fabrics</option>
+        <option>Cotton</option><option>Silk</option><option>Wool</option>
+        <option>Denim</option><option>Rayon</option><option>Linen</option>
+      </select>
+      <button class="btn btn-ghost" onclick="clearCompanyFilters()">✕ Clear</button>
+    </div>
+
+    <!-- Featured (top row) -->
+    <div style="margin-bottom:32px;">
+      <div style="font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">⭐ Featured Companies</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;" id="featuredList"></div>
+    </div>
+
+    <!-- All Companies -->
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:1rem;font-weight:700;">All Companies</div>
+        <div style="font-size:0.85rem;color:var(--txt-muted);" id="companyCount"></div>
+      </div>
+      <div id="companiesList"></div>
+    </div>
+
+    <!-- Company Detail Modal -->
+    <div id="companyModal" class="modal-overlay" style="display:none;">
+      <div class="modal" style="max-width:640px;" id="companyModalContent"></div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    initPage('companies');
+
+    // Check if coming from a specific company
+    const params = new URLSearchParams(window.location.search);
+    const companyId = params.get('id');
+
+    function clearCompanyFilters() {
+      document.getElementById('companySearch').value = '';
+      document.getElementById('companyType').value = '';
+      document.getElementById('companyFabric').value = '';
+      renderCompanies();
+    }
+
+    function renderCompanies() {
+      const q = (document.getElementById('companySearch').value || '').toLowerCase();
+      const type = document.getElementById('companyType').value;
+      const fabric = document.getElementById('companyFabric').value;
+
+      const filtered = TC_DATA.companies.filter(c => {
+        const matchQ = !q || c.name.toLowerCase().includes(q) || (c.tagline||'').toLowerCase().includes(q) || c.type.toLowerCase().includes(q);
+        const matchType = !type || c.type === type;
+        const matchFabric = !fabric || c.fabricType === fabric;
+        return matchQ && matchType && matchFabric;
+      });
+
+      document.getElementById('companyCount').textContent = `${filtered.length} companies`;
+
+      // Featured: top 3
+      const featuredList = document.getElementById('featuredList');
+      const featured = filtered.slice(0, 3);
+      featuredList.innerHTML = featured.map(c => renderCompanyCard(c, true)).join('');
+
+      // All as table-style list
+      const list = document.getElementById('companiesList');
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏭</div><div class="empty-state-text">No companies found.</div></div>`;
+        return;
+      }
+      list.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${filtered.map(c => `
+            <div class="card hover-lift" style="cursor:pointer;padding:20px;" onclick="openCompanyModal('${c.id}')">
+              <div style="display:flex;align-items:center;gap:16px;">
+                <div style="width:56px;height:56px;border-radius:var(--r-md);background:linear-gradient(135deg,${c.color},${c.color}99);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#fff;flex-shrink:0;">${c.name[0]}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;font-size:1rem;">${c.name}</div>
+                  <div style="font-size:0.82rem;color:var(--txt-muted);margin-top:2px;">${c.tagline}</div>
+                  <div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap;">
+                    <span class="text-xs text-muted">🏷️ ${c.type}</span>
+                    <span class="text-xs text-muted">📍 ${c.location}</span>
+                    <span class="text-xs text-muted">🧵 ${c.fabricType}</span>
+                    <span class="text-xs text-muted">👥 ${c.employees}</span>
+                  </div>
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                  <div style="font-size:0.9rem;font-weight:700;color:var(--clr-primary-light);">${c.followers.toLocaleString()}</div>
+                  <div style="font-size:0.72rem;color:var(--txt-muted);">followers</div>
+                  <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="event.stopPropagation();followCompany(this,'${c.name}')">+ Follow</button>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderCompanyCard(c, featured = false) {
+      return `
+        <div class="company-card stagger-children" onclick="openCompanyModal('${c.id}')">
+          <div class="company-card-banner" style="background:linear-gradient(135deg,${c.color}44,${c.color}11);position:relative;">
+            <div style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%),repeating-linear-gradient(-45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:16px 16px;"></div>
+            ${featured ? '<span class="badge badge-accent" style="position:absolute;top:10px;right:10px;">⭐ Featured</span>' : ''}
+          </div>
+          <div class="company-card-body">
+            <div class="company-logo" style="background:linear-gradient(135deg,${c.color},${c.color}99);">${c.name[0]}</div>
+            <div class="company-name">${c.name}</div>
+            <div class="company-tagline">${c.tagline}</div>
+            <div class="company-meta">
+              <span>🏷️ ${c.type}</span>
+              <span>📍 ${c.location}</span>
+              <span>🧵 Speciality: ${c.fabricType}</span>
+              <span>👥 ${c.employees} employees</span>
+            </div>
+            <div class="company-followers">${c.followers.toLocaleString()} followers</div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+              <button class="btn btn-outline btn-sm" style="flex:1;" onclick="event.stopPropagation();followCompany(this,'${c.name}')">+ Follow</button>
+              <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="event.stopPropagation();openCompanyModal('${c.id}')">View →</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function openCompanyModal(companyId) {
+      const c = TC_DATA.companies.find(c => c.id === companyId);
+      if (!c) return;
+      const companyJobs = TC_DATA.jobs.filter(j => j.companyId === companyId);
+      const employees = TC_DATA.users.filter(u => u.company && u.company.toLowerCase().includes(c.name.split(' ')[0].toLowerCase())).slice(0,3);
+
+      document.getElementById('companyModalContent').innerHTML = `
+        <div class="modal-header">
+          <h3 class="modal-title">${c.name}</h3>
+          <button class="modal-close" onclick="document.getElementById('companyModal').style.display='none'">✕</button>
+        </div>
+        <div style="background:linear-gradient(135deg,${c.color}33,${c.color}11);height:80px;border-radius:var(--r-md);margin-bottom:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;opacity:0.08;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%),repeating-linear-gradient(-45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:16px 16px;"></div>
+        </div>
+        <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <div style="font-size:1.2rem;font-weight:800;">${c.name}</div>
+            <div style="color:var(--txt-muted);font-size:0.875rem;margin-top:4px;">${c.tagline}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+              <span class="badge badge-primary">${c.type}</span>
+              <span class="badge badge-accent">${c.fabricType}</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="followCompany(this,'${c.name}')">+ Follow Company</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;">
+          <div style="text-align:center;padding:16px;background:var(--bg-input);border-radius:var(--r-md);">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--clr-primary-light);">${c.followers.toLocaleString()}</div>
+            <div style="font-size:0.78rem;color:var(--txt-muted);">Followers</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--bg-input);border-radius:var(--r-md);">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--clr-accent);">${c.employees}</div>
+            <div style="font-size:0.78rem;color:var(--txt-muted);">Employees</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--bg-input);border-radius:var(--r-md);">
+            <div style="font-size:1.2rem;font-weight:800;color:var(--clr-success);">${companyJobs.length}</div>
+            <div style="font-size:0.78rem;color:var(--txt-muted);">Open Jobs</div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div style="font-weight:700;margin-bottom:10px;">About</div>
+          <p style="font-size:0.9rem;color:var(--txt-secondary);line-height:1.7;">${c.about}</p>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+            <span class="text-sm text-muted">📍 ${c.location}</span>
+            <span class="text-sm text-muted">🏭 ${c.type}</span>
+          </div>
+        </div>
+        ${companyJobs.length > 0 ? `
+          <div style="margin-bottom:16px;">
+            <div style="font-weight:700;margin-bottom:12px;">Open Positions</div>
+            ${companyJobs.map(j => `
+              <div style="padding:12px;background:var(--bg-input);border-radius:var(--r-md);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-weight:600;font-size:0.9rem;">${j.title}</div>
+                  <div style="font-size:0.78rem;color:var(--txt-muted);">📍 ${j.location} · ${j.salary}</div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="window.location.href='jobs.html'">Apply</button>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+      document.getElementById('companyModal').style.display = 'flex';
+    }
+
+    function followCompany(btn, name) {
+      btn.textContent = '✓ Following';
+      btn.disabled = true;
+      showToast('Following ' + name, 'success');
+    }
+
+    // Init
+    renderCompanies();
+    if (companyId) openCompanyModal(companyId);
+  </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed – TextileConnect</title>
+  <meta name="description" content="Your personalized textile industry news feed on TextileConnect.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="page-layout" id="pageLayout">
+    <!-- Left Sidebar -->
+    <div id="leftSidebar"></div>
+
+    <!-- Feed -->
+    <main>
+      <!-- Post Composer -->
+      <div class="post-composer">
+        <div class="composer-top">
+          <div id="composerAvatar"></div>
+          <button class="composer-input-btn" onclick="openPostModal()" id="composerBtn">
+            Share your textile insights, news or expertise…
+          </button>
+        </div>
+        <div class="composer-actions">
+          <button class="composer-action-btn" onclick="openPostModal()">📸 Photo</button>
+          <button class="composer-action-btn" onclick="openPostModal()">📄 Article</button>
+          <button class="composer-action-btn" onclick="openPostModal()">📊 Insight</button>
+          <button class="composer-action-btn" onclick="openPostModal()">🎯 Poll</button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;margin-bottom:4px;">
+        <button class="tab-btn active" onclick="filterFeed(this,'all')">All Posts</button>
+        <button class="tab-btn" onclick="filterFeed(this,'Technology')">🔬 Tech</button>
+        <button class="tab-btn" onclick="filterFeed(this,'Design')">🎨 Design</button>
+        <button class="tab-btn" onclick="filterFeed(this,'Market Insights')">📊 Markets</button>
+        <button class="tab-btn" onclick="filterFeed(this,'Sustainability')">🌿 Sustainability</button>
+        <button class="tab-btn" onclick="filterFeed(this,'Business')">💼 Business</button>
+      </div>
+
+      <!-- Feed -->
+      <div class="feed page-content" id="feedContainer" style="margin-top:16px;"></div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <div id="rightSidebar"></div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentFilter = 'all';
+    let allPosts = [];
+
+    function renderFeed() {
+      allPosts = Posts.getAll();
+      const filtered = currentFilter === 'all'
+        ? allPosts
+        : allPosts.filter(p => p.category === currentFilter);
+
+      const container = document.getElementById('feedContainer');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No posts in this category yet. Be the first to share!</div></div>`;
+        return;
+      }
+      container.innerHTML = filtered.map(p => renderPost(p)).join('');
+    }
+
+    function filterFeed(btn, category) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = category;
+      renderFeed();
+    }
+
+    // Init
+    Auth.requireAuth();
+    initPage('feed');
+
+    const user = Auth.getCurrentUser();
+    document.getElementById('leftSidebar').innerHTML = renderLeftSidebar('feed');
+    document.getElementById('rightSidebar').innerHTML = renderRightSidebar();
+    document.getElementById('composerAvatar').innerHTML = avatarHTML(user, 'md');
+
+    renderFeed();
+  </script>
+</body>
+</html>

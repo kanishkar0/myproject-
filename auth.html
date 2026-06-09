@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In / Join – TextileConnect</title>
+  <meta name="description" content="Join TextileConnect – the professional network for textile industry experts, manufacturers, designers, and traders.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- Left Panel -->
+  <div class="auth-left">
+    <div style="position:relative;z-index:1;max-width:440px;">
+      <a href="index.html" class="nav-logo" style="margin-bottom:40px;display:inline-flex;">
+        <div class="nav-logo-icon">🧵</div>
+        <span class="nav-logo-text">TextileConnect</span>
+      </a>
+      <h2 class="font-display" style="font-size:2.2rem;margin-bottom:16px;">Your Textile Network<br><span class="gradient-text">Awaits You</span></h2>
+      <p style="color:var(--txt-secondary);font-size:1rem;line-height:1.7;margin-bottom:40px;">Connect with 1.2 million textile professionals across 50+ countries. Discover jobs, share knowledge, and grow your career.</p>
+
+      <div style="display:flex;flex-direction:column;gap:16px;" class="stagger-children">
+        <div style="display:flex;align-items:center;gap:14px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:14px;">
+          <span style="font-size:1.5rem;">🤝</span>
+          <div>
+            <div style="font-weight:600;font-size:0.9rem;">1.2M+ Professionals</div>
+            <div style="font-size:0.8rem;color:var(--txt-muted);">Manufacturers, designers, traders & experts</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:14px;">
+          <span style="font-size:1.5rem;">💼</span>
+          <div>
+            <div style="font-weight:600;font-size:0.9rem;">24,000+ Job Openings</div>
+            <div style="font-size:0.8rem;color:var(--txt-muted);">Across leading textile companies globally</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:14px;">
+          <span style="font-size:1.5rem;">🌍</span>
+          <div>
+            <div style="font-weight:600;font-size:0.9rem;">Global Trade Network</div>
+            <div style="font-size:0.8rem;color:var(--txt-muted);">Connect with buyers & suppliers worldwide</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel (Form) -->
+  <div class="auth-right">
+    <div class="auth-form-container animate-fadeInUp">
+      <div class="auth-toggle" id="authToggle">
+        <button class="auth-toggle-btn active" id="loginTabBtn" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-toggle-btn" id="registerTabBtn" onclick="switchTab('register')">Join Free</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Welcome back!</h3>
+        <p style="color:var(--txt-muted);font-size:0.875rem;margin-bottom:28px;">Sign in to your TextileConnect account</p>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" class="input" id="loginEmail" placeholder="you@example.com" value="rajesh@csm.com">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <input type="password" class="input" id="loginPassword" placeholder="••••••••" value="password123">
+          </div>
+          <div style="display:flex;justify-content:flex-end;">
+            <a href="#" style="font-size:0.8rem;color:var(--clr-primary-light);">Forgot password?</a>
+          </div>
+          <button class="btn btn-primary w-full" style="padding:14px;" onclick="handleLogin()">
+            Sign In to TextileConnect
+          </button>
+        </div>
+
+        <div style="text-align:center;margin:24px 0;position:relative;">
+          <span style="background:var(--bg-root);padding:0 12px;font-size:0.8rem;color:var(--txt-muted);position:relative;z-index:1;">or continue with</span>
+          <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border-subtle);z-index:0;"></div>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-ghost w-full" onclick="quickDemo()">🚀 Quick Demo Login</button>
+        </div>
+
+        <p style="text-align:center;margin-top:24px;font-size:0.875rem;color:var(--txt-muted);">
+          New to TextileConnect? <a href="#" onclick="switchTab('register')" style="color:var(--clr-primary-light);font-weight:600;">Join Free →</a>
+        </p>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="registerForm" style="display:none;">
+        <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Join TextileConnect</h3>
+        <p style="color:var(--txt-muted);font-size:0.875rem;margin-bottom:24px;">Create your free professional profile</p>
+
+        <div style="display:flex;flex-direction:column;gap:14px;" id="registerFields">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="input-group">
+              <label class="input-label">First Name</label>
+              <input type="text" class="input" id="regFirstName" placeholder="Rajesh">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Last Name</label>
+              <input type="text" class="input" id="regLastName" placeholder="Kumar">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" class="input" id="regEmail" placeholder="you@example.com">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Password</label>
+            <input type="password" class="input" id="regPassword" placeholder="Create strong password">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Your Role in Textile Industry</label>
+            <select class="select" id="regRole">
+              <option value="">Select your role…</option>
+              <option>Textile Manufacturer</option>
+              <option>Fabric Designer</option>
+              <option>Yarn Trader</option>
+              <option>Fabric Buyer</option>
+              <option>Quality Inspector</option>
+              <option>Textile Engineer</option>
+              <option>Mill Owner</option>
+              <option>Export Manager</option>
+              <option>Fashion Designer</option>
+              <option>Textile Chemist</option>
+              <option>Weaving Expert</option>
+              <option>Knitting Specialist</option>
+              <option>Dyeing & Printing Expert</option>
+              <option>Supply Chain Manager</option>
+              <option>Textile Consultant</option>
+              <option>Research Scientist</option>
+              <option>Textile Student</option>
+              <option>Brand Manager</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Fabric Specialization</label>
+            <select class="select" id="regFabric">
+              <option value="">Select fabric type…</option>
+              <option>Cotton</option><option>Silk</option><option>Wool</option>
+              <option>Linen</option><option>Denim</option><option>Polyester</option>
+              <option>Nylon</option><option>Rayon</option><option>Velvet</option>
+              <option>Chiffon</option><option>Satin</option><option>Jacquard</option>
+              <option>Multiple / All</option>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="input-group">
+              <label class="input-label">Country</label>
+              <select class="select" id="regCountry">
+                <option value="">Country…</option>
+                <option>India</option><option>China</option><option>Bangladesh</option>
+                <option>Vietnam</option><option>Turkey</option><option>Indonesia</option>
+                <option>Pakistan</option><option>Italy</option><option>Germany</option>
+                <option>USA</option><option>Japan</option><option>South Korea</option>
+                <option>Egypt</option><option>Brazil</option><option>Sri Lanka</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">City</label>
+              <input type="text" class="input" id="regCity" placeholder="Your city">
+            </div>
+          </div>
+          <button class="btn btn-primary w-full" style="padding:14px;margin-top:4px;" onclick="handleRegister()">
+            🚀 Create My Free Account
+          </button>
+          <p style="font-size:0.75rem;color:var(--txt-muted);text-align:center;">
+            By joining, you agree to our Terms of Service and Privacy Policy.
+          </p>
+        </div>
+
+        <p style="text-align:center;margin-top:16px;font-size:0.875rem;color:var(--txt-muted);">
+          Already a member? <a href="#" onclick="switchTab('login')" style="color:var(--clr-primary-light);font-weight:600;">Sign In →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // Check if coming to register
+  if (window.location.hash === '#register') switchTab('register');
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('loginTabBtn').classList.toggle('active', isLogin);
+    document.getElementById('registerTabBtn').classList.toggle('active', !isLogin);
+  }
+
+  function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showToast('Please fill in all fields', 'error'); return; }
+
+    // Find demo user or create session
+    const demoUser = TC_DATA.users[0];
+    const loginUser = {
+      ...demoUser,
+      email: email
+    };
+    Auth.login(loginUser);
+    showToast('Welcome back, ' + demoUser.name.split(' ')[0] + '! 🎉', 'success');
+    setTimeout(() => window.location.href = 'feed.html', 1000);
+  }
+
+  function quickDemo() {
+    Auth.login(TC_DATA.users[0]);
+    showToast('Logged in as demo user! 🚀', 'success');
+    setTimeout(() => window.location.href = 'feed.html', 800);
+  }
+
+  function handleRegister() {
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName = document.getElementById('regLastName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const role = document.getElementById('regRole').value;
+    const fabric = document.getElementById('regFabric').value;
+    const country = document.getElementById('regCountry').value;
+    const city = document.getElementById('regCity').value.trim();
+
+    if (!firstName || !lastName || !email || !password || !role) {
+      showToast('Please fill in all required fields', 'error'); return;
+    }
+    if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+
+    const colors = ['#4F46E5','#D97706','#0EA5E9','#10B981','#8B5CF6','#EC4899'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const newUser = {
+      id: 'u_' + Date.now(),
+      name: firstName + ' ' + lastName,
+      title: role,
+      role: role,
+      company: '',
+      location: city && country ? city + ', ' + country : (country || city || ''),
+      country: country,
+      fabricType: fabric,
+      avatar: null,
+      avatarColor: color,
+      initials: (firstName[0] + lastName[0]).toUpperCase(),
+      connections: 0,
+      followers: 0,
+      about: '',
+      skills: [],
+      experience: [],
+      certifications: [],
+      posts: [],
+      email: email
+    };
+    Auth.login(newUser);
+    showToast('Welcome to TextileConnect, ' + firstName + '! 🎉', 'success');
+    setTimeout(() => window.location.href = 'feed.html', 1000);
+  }
+</script>
+</body>
+</html>
